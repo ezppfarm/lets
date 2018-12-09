@@ -1,0 +1,9 @@
+[submodule "pp/oppai-ng"]
+	path = pp/oppai-ng
+	url = https://github.com/Francesco149/oppai-ng
+[submodule "pp/catch_the_pp"]
+	path = pp/catch_the_pp
+	url = https://github.com/osuripple/catch-the-pp
+[submodule "common"]
+	path = common
+	url = https://github.com/osuYozora/yozora-python-common
