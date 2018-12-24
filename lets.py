@@ -26,6 +26,7 @@ from handlers import downloadMapHandler
 from handlers import emptyHandler
 from handlers import getFullReplayHandler
 from handlers import getFullReplayHandlerRelax
+from handlers import getFullReplayHandlerAuto
 from handlers import getReplayHandler
 from handlers import getScoresHandler
 from handlers import getScreenshotHandler
@@ -66,6 +67,7 @@ def make_app():
 		(r"/s/(.*)", downloadMapHandler.handler),
 		(r"/web/replays/(.*)", getFullReplayHandler.handler),
 		(r"/web/replays_relax/(.*)", getFullReplayHandlerRelax.handler),
+		(r"/web/replays_auto/(.*)", getFullReplayHandlerAuto.handler),
 
 		(r"/p/verify", redirectHandler.handler, dict(destination="https://ripple.moe/index.php?p=2")),
 		(r"/u/(.*)", redirectHandler.handler, dict(destination="https://ripple.moe/index.php?u={}")),
@@ -128,7 +130,8 @@ if __name__ == "__main__":
 			".data/screenshots",
 			".data/oppai",
 			".data/catch_the_pp",
-			".data/beatmaps"
+			".data/beatmaps",
+			".data/replays_auto"
 		]
 		for i in paths:
 			if not os.path.exists(i):
