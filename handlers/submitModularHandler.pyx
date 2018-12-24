@@ -23,12 +23,15 @@ from helpers import aeshelper
 from helpers import replayHelper
 from helpers import leaderboardHelper
 from helpers import leaderboardHelperRelax
+from helpers import leaderboardHelperAuto
 from objects import beatmap
 from objects import glob
 from objects import score
 from objects import scoreboard
 from objects import scoreRelax
 from objects import scoreboardRelax
+from objects import scoreboardAuto
+from objects import scoreAuto
 from secret import butterCake
 
 MODULE_NAME = "submit_modular"
@@ -111,6 +114,8 @@ class handler(requestsManager.asyncRequestHandler):
 			log.info("{} has submitted a score on {}...".format(username, scoreData[0]))
 			if bool(int(scoreData[13]) & 128) == True:
 				s = scoreRelax.score()
+			elif bool(int(scoreData[13]) * 8192) == True:
+				s = scoreAuto.score()
 			else:
 				s = score.score()
 
@@ -232,6 +237,8 @@ class handler(requestsManager.asyncRequestHandler):
 
 			if bool(s.mods & 128) == True:
 				score_id_relax = s.scoreID # I'm not sure if it's needed as it still saved, but i wanna be safe rather than sorry
+			elif bool(s.modss & 8192) == True:
+				score_id_auto = s.scoreID
 
 			# Save replay for all passed scores
 			# Make sure the score has an id as well (duplicated?, query error?)
@@ -242,6 +249,11 @@ class handler(requestsManager.asyncRequestHandler):
 						log.debug("Saving replay ({})...".format(score_id_relax))
 						replay = self.request.files["score"][0]["body"]
 						with open(".data/replays_relax/replay_{}.osr".format(score_id_relax), "wb") as f:
+							f.write(replay)
+					elif bool(s.mods & 8192) == True:
+						log.debug("Saving replay ({})...".format(score_id_relax))
+						replay = self.request.files["score"][0]["body"]
+						with open(".data/replays_auto/replay_{}.osr".format(score_id_auto), "wb") as f:
 							f.write(replay)
 					else:
 						log.debug("Saving replay ({})...".format(s.scoreID))
@@ -309,7 +321,10 @@ class handler(requestsManager.asyncRequestHandler):
 					newUserData = userUtils.getUserStatsRx(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
 					leaderboardHelperRelax.update(userID, newUserData["pp"], s.gameMode)				
-			
+				elif s.completed == 3 and bool(s.mods & 128) == True:
+					newUserData = userUtils.getUserStatsAp(userID, s.gameMode)
+					glob.userStatsCache.update(userID, s.gameMode, newUserData)
+					leaderboardHelperAuto.update(userID, newUserData["pp"], s.gameMode)	
 				
 
 			# TODO: Update total hits and max combo
@@ -341,13 +356,18 @@ class handler(requestsManager.asyncRequestHandler):
 				# Get personal best after submitting the score
 				if bool(s.mods & 128) == False:
 					newScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
+				elif bool(s.mods & 8192) == True:
+					scoreboardAuto.scoreboardAuto(username, s.gameMode, beatmapInfo, False)
 				else:
 					newScoreboard = scoreboardRelax.scoreboardRelax(username, s.gameMode, beatmapInfo, False)
+
 				newScoreboard.setPersonalBest()
 
 				# Get rank info (current rank, pp/score to next rank, user who is 1 rank above us)
 				if bool(s.mods & 128):
 					rankInfo = leaderboardHelperRelax.getRankInfo(userID, s.gameMode)
+				elif bool(s.mods & 8192) == True:
+					rankInfo = leaderboardHelperAuto.getRankInfo(userID, s.gameMode)				
 				else:
 					rankInfo = leaderboardHelper.getRankInfo(userID, s.gameMode)
 
@@ -397,7 +417,15 @@ class handler(requestsManager.asyncRequestHandler):
 				# send message to #announce if we're rank #1
 				if newScoreboard.personalBestRank == 1 and s.completed == 3 and restricted == False:
 					if bool(s.mods & 128) == True:
-						annmsg = "[https://yozora.pw/?u={} {}] (relax) achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
+						annmsg = "[RELAX] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
+							userID,
+							username.encode().decode("ASCII", "ignore"),
+							beatmapInfo.beatmapID,
+							beatmapInfo.songName.encode().decode("ASCII", "ignore"),
+							gameModes.getGamemodeFull(s.gameMode)
+						)
+					elif bool(s.mods & 8192) == True:
+						annmsg = "[AUTOPILOT] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 							userID,
 							username.encode().decode("ASCII", "ignore"),
 							beatmapInfo.beatmapID,
@@ -405,7 +433,7 @@ class handler(requestsManager.asyncRequestHandler):
 							gameModes.getGamemodeFull(s.gameMode)
 						)
 					else:
-						annmsg = "[https://yozora.pw/?u={} {}] (regular) achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
+						annmsg = "[VANILLA] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 							userID,
 							username.encode().decode("ASCII", "ignore"),
 							beatmapInfo.beatmapID,
