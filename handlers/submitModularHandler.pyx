@@ -305,6 +305,8 @@ class handler(requestsManager.asyncRequestHandler):
 
 			if bool(s.mods & 128) == True:	
 				userUtils.updateStatsRx(userID, s)
+			if bool(s.mods & 8192) == True:	
+				userUtils.updateStatsAp(userID, s)
 			else:
 				userUtils.updateStats(userID, s)
 
@@ -317,7 +319,7 @@ class handler(requestsManager.asyncRequestHandler):
 					newUserData = userUtils.getUserStats(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
 					leaderboardHelper.update(userID, newUserData["pp"], s.gameMode)
-				elif s.completed == 3 and bool(s.mods & 128) == True:
+				elif s.completed == 3 and bool(s.mods & 8192) == True:
 					newUserData = userUtils.getUserStatsRx(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
 					leaderboardHelperRelax.update(userID, newUserData["pp"], s.gameMode)				
