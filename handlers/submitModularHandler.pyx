@@ -237,7 +237,7 @@ class handler(requestsManager.asyncRequestHandler):
 
 			if bool(s.mods & 128) == True:
 				score_id_relax = s.scoreID # I'm not sure if it's needed as it still saved, but i wanna be safe rather than sorry
-			elif bool(s.modss & 8192) == True:
+			elif bool(s.mods & 8192) == True:
 				score_id_auto = s.scoreID
 
 			# Save replay for all passed scores
