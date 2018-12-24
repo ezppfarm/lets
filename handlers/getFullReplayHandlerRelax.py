@@ -3,7 +3,7 @@ import tornado.web
 
 from common.web import requestsManager
 from constants import exceptions
-from helpers import replayHelperAuto as replayHelper
+from helpers import replayHelperRelax as replayHelper
 from common.sentry import sentry
 
 MODULE_NAME = "get_full_replay"
