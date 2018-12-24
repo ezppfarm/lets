@@ -21,6 +21,7 @@ from constants import rankedStatuses
 from constants.exceptions import ppCalcException
 from helpers import aeshelper
 from helpers import replayHelper
+from helpers.generalHelper import zingonify
 from helpers import leaderboardHelper
 from helpers import leaderboardHelperRelax
 from helpers import leaderboardHelperAuto
@@ -32,6 +33,7 @@ from objects import scoreRelax
 from objects import scoreboardRelax
 from objects import scoreboardAuto
 from objects import scoreAuto
+from objects.charts import BeatmapChart, OverallChart
 from secret import butterCake
 
 MODULE_NAME = "submit_modular"
@@ -43,6 +45,7 @@ class handler(requestsManager.asyncRequestHandler):
 	@tornado.gen.engine
 	#@sentry.captureTornado
 	def asyncPost(self):
+		newCharts = self.request.uri == "/web/osu-submit-modular-selector.php"
 		try:
 			# Resend the score in case of unhandled exceptions
 			keepSending = True
@@ -165,8 +168,8 @@ class handler(requestsManager.asyncRequestHandler):
 				userUtils.restrict(userID)
 				userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
 				log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
-			
 			# Check notepad hack
+				
 			if bmk is None and bml is None:
 				# No bmk and bml params passed, edited or super old client
 				#log.warning("{} ({}) most likely submitted a score from an edited client or a super old client".format(username, userID), "cm")
@@ -177,6 +180,19 @@ class handler(requestsManager.asyncRequestHandler):
 				userUtils.appendNotes(userID, "Restricted due to notepad hack")
 				log.warning("**{}** ({}) has been restricted due to notepad hack".format(username, userID), "cm")
 				return
+			# Right before submitting the score, get the personal best score object (we need it for charts)
+			if s.passed and s.oldPersonalBest > 0:
+				# We have an older personal best. Get its rank (try to get it from cache first)
+				oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
+				if oldPersonalBestRank == 0:
+					# oldPersonalBestRank not found in cache, get it from db through a scoreboard object
+					oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
+					oldScoreboard.setPersonalBestRank()
+					oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
+				oldPersonalBest = score.score(s.oldPersonalBest, oldPersonalBestRank)
+			else:
+				oldPersonalBestRank = 0
+				oldPersonalBest = None
 
 			# Save score in db
 			s.saveScoreInDB()
@@ -378,47 +394,58 @@ class handler(requestsManager.asyncRequestHandler):
 					rankInfo = leaderboardHelper.getRankInfo(userID, s.gameMode)
 
 				# Output dictionary
-				output = collections.OrderedDict()
-				output["beatmapId"] = beatmapInfo.beatmapID
-				output["beatmapSetId"] = beatmapInfo.beatmapSetID
-				output["beatmapPlaycount"] = beatmapInfo.playcount
-				output["beatmapPasscount"] = beatmapInfo.passcount
-				#output["approvedDate"] = "2015-07-09 23:20:14\n"
-				output["approvedDate"] = "\n" 
-				output["chartId"] = "overall"
-				output["chartName"] = "Overall Ranking"
-				output["chartEndDate"] = ""
-				output["beatmapRankingBefore"] = oldPersonalBestRank
-				output["beatmapRankingAfter"] = newScoreboard.personalBestRank
-				output["rankedScoreBefore"] = oldUserData["rankedScore"]
-				output["rankedScoreAfter"] = newUserData["rankedScore"]
-				output["totalScoreBefore"] = oldUserData["totalScore"]
-				output["totalScoreAfter"] = newUserData["totalScore"]
-				output["playCountBefore"] = newUserData["playcount"]
-				output["accuracyBefore"] = float(oldUserData["accuracy"])/100
-				output["accuracyAfter"] = float(newUserData["accuracy"])/100
-				output["rankBefore"] = oldRank
-				output["rankAfter"] = rankInfo["currentRank"]
-				output["toNextRank"] = rankInfo["difference"]
-				output["toNextRankUser"] = rankInfo["nextUsername"]
-				output["achievements"] = ""
-				output["achievements-new"] = secret.achievements.utils.achievements_response(new_achievements)
-				output["onlineScoreId"] = s.scoreID
-
-				# Build final string
-				msg = ""
-				for line, val in output.items():
-					msg += "{}:{}".format(line, val)
-					if val != "\n":
-						if (len(output) - 1) != list(output.keys()).index(line):
-							msg += "|"
-						else:
-							msg += "\n"
-
-				# Some debug messages
-				log.debug("Generated output for online ranking screen!")
-				log.debug(msg)
-
+				if newCharts:
+					log.debug("Using new charts")
+					dicts = [
+						collections.OrderedDict([
+							("beatmapId", beatmapInfo.beatmapID),
+							("beatmapSetId", beatmapInfo.beatmapSetID),
+							("beatmapPlaycount", beatmapInfo.playcount  1),
+							("beatmapPasscount", beatmapInfo.passcount  (s.completed == 3)),
+							("approvedDate", "")
+						]),
+						BeatmapChart(
+							oldPersonalBest if s.completed == 3 else currentPersonalBest,
+							currentPersonalBest if s.completed == 3 else s,
+							beatmapInfo.beatmapID,
+						),
+						OverallChart(
+							userID, oldUserData, newUserData, s, new_achievements, oldRank, rankInfo["currentRank"]
+						)
+					]
+				else:
+					log.debug("Using old charts")
+					dicts = [
+						collections.OrderedDict([
+							("beatmapId", beatmapInfo.beatmapID),
+							("beatmapSetId", beatmapInfo.beatmapSetID),
+							("beatmapPlaycount", beatmapInfo.playcount),
+							("beatmapPasscount", beatmapInfo.passcount),
+							("approvedDate", "")
+						]),
+						collections.OrderedDict([
+							("chartId", "overall"),
+							("chartName", "Overall Ranking"),
+							("chartEndDate", ""),
+							("beatmapRankingBefore", oldPersonalBestRank),
+							("beatmapRankingAfter", newScoreboard.personalBestRank),
+							("rankedScoreBefore", oldUserData["rankedScore"]),
+							("rankedScoreAfter", newUserData ["rankedScore"]),
+							("totalScoreBefore", oldUserData["totalScore"]),
+							("totalScoreAfter", newUserData ["totalScore"]),
+							("playCountBefore", newUserData ["playcount"]),
+							("accuracyBefore", float(oldUserData["accuracy"])/100),
+							("accuracyAfter", float(newUserData["accuracy"])/100),
+							("rankBefore", oldRank),
+							("rankAfter", rankInfo["currentRank"]),
+							("toNextRank", rankInfo["difference"]),
+							("toNextRankUser", rankInfo["nextUsername"]),
+							("achievements", ""),
+							("achievements-new", secret.achievements.utils.achievements_response(new_achievements)),
+							("onlineScoreId", s.scoreID)
+						])
+					]
+				output = "\n".join(zingonify(x) for x in dicts)
 
 				# send message to #announce if we're rank #1
 				if newScoreboard.personalBestRank == 1 and s.completed == 3 and restricted == False:
@@ -456,7 +483,7 @@ class handler(requestsManager.asyncRequestHandler):
 				ppGained = newUserData["pp"] - oldUserData["pp"]
 				gainedRanks = oldRank - rankInfo["currentRank"]
 				# Write message to client
-				self.write(msg)
+				self.write(output)
 			else:
 				# No ranking panel, send just "ok"
 				self.write("ok")
