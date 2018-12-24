@@ -161,7 +161,11 @@ class handler(requestsManager.asyncRequestHandler):
 				userUtils.restrict(userID)
 				userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
 				log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
-				
+			elif (s.pp >= 3000 and bool(s.mods & 8192) == True and s.gameMode == gameModes.STD) and restricted == False:
+				userUtils.restrict(userID)
+				userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
+				log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
+			
 			# Check notepad hack
 			if bmk is None and bml is None:
 				# No bmk and bml params passed, edited or super old client
