@@ -1,5 +1,5 @@
 
-from objects import scoreRelax
+from objects import scoreAuto
 from common.ripple import userUtils
 from constants import rankedStatuses
 from common.constants import mods as modsEnum
@@ -83,7 +83,7 @@ class scoreboardAuto:
 
 		# Output our personal best if found
 		if personalBestScore is not None:
-			s = scoreRelax.score(personalBestScore["id"])
+			s = scoreAuto.score(personalBestScore["id"])
 			self.scores[0] = s
 		else:
 			# No personal best
@@ -134,7 +134,7 @@ class scoreboardAuto:
 		if topScores is not None:
 			for topScore in topScores:
 				# Create score object
-				s = scoreRelax.score(topScore["id"], setData=False)
+				s = scoreAuto.score(topScore["id"], setData=False)
 
 				# Set data and rank from topScores's row
 				s.setDataFromDict(topScore)

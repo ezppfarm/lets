@@ -4,6 +4,3 @@
 [submodule "pp/catch_the_pp"]
 	path = pp/catch_the_pp
 	url = https://github.com/osuripple/catch-the-pp
-[submodule "common"]
-	path = common
-	url = https://github.com/osuYozora/yozora-python-common

@@ -251,7 +251,7 @@ class handler(requestsManager.asyncRequestHandler):
 						with open(".data/replays_relax/replay_{}.osr".format(score_id_relax), "wb") as f:
 							f.write(replay)
 					elif bool(s.mods & 8192) == True:
-						log.debug("Saving replay ({})...".format(score_id_relax))
+						log.debug("Saving replay ({})...".format(score_id_auto))
 						replay = self.request.files["score"][0]["body"]
 						with open(".data/replays_auto/replay_{}.osr".format(score_id_auto), "wb") as f:
 							f.write(replay)
