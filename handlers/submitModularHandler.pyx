@@ -114,7 +114,7 @@ class handler(requestsManager.asyncRequestHandler):
 			log.info("{} has submitted a score on {}...".format(username, scoreData[0]))
 			if bool(int(scoreData[13]) & 128) == True:
 				s = scoreRelax.score()
-			elif bool(int(scoreData[13]) * 8192) == True:
+			elif bool(int(scoreData[13]) & 8192) == True:
 				s = scoreAuto.score()
 			else:
 				s = score.score()
