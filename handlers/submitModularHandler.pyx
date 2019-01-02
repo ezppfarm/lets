@@ -344,7 +344,7 @@ class handler(requestsManager.asyncRequestHandler):
 					newUserData = userUtils.getUserStats(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
 					leaderboardHelper.update(userID, newUserData["pp"], s.gameMode)
-				elif and bool(s.mods & 8192) == True:
+				elif bool(s.mods & 8192) == True:
 					newUserData = userUtils.getUserStatsAp(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
 					leaderboardHelperAuto.update(userID, newUserData["pp"], s.gameMode)				
