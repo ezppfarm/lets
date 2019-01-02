@@ -387,7 +387,7 @@ class handler(requestsManager.asyncRequestHandler):
 				else:
 					newScoreboard = scoreboardRelax.scoreboardRelax(username, s.gameMode, beatmapInfo, False)
 				newScoreboard.setPersonalBestRank()
-				personalBestID = newScoreboard.getPersonalBestid()
+				personalBestID = newScoreboard.getPersonalBestID()
 				assert personalBestID is not None
 				currentPersonalBest = score.score(personalBestID, newScoreboard.personalBestRank)
 
