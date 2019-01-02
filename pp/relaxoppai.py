@@ -12,7 +12,7 @@ from constants import exceptions
 from helpers import mapsHelper
 
 # constants
-MODULE_NAME = "rippoppai"
+MODULE_NAME = "relaxoppai"
 UNIX = True if os.name == "posix" else False
 
 def fixPath(command):
