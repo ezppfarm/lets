@@ -340,15 +340,15 @@ class handler(requestsManager.asyncRequestHandler):
 			# (only if we passed that song)
 			if s.passed:
 				# Get new stats
-				if s.completed == 3 and bool(s.mods & 128) == False:
+				if bool(s.mods & 128) == False:
 					newUserData = userUtils.getUserStats(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
 					leaderboardHelper.update(userID, newUserData["pp"], s.gameMode)
-				elif s.completed == 3 and bool(s.mods & 8192) == True:
+				elif and bool(s.mods & 8192) == True:
 					newUserData = userUtils.getUserStatsAp(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
 					leaderboardHelperAuto.update(userID, newUserData["pp"], s.gameMode)				
-				elif s.completed == 3 and bool(s.mods & 128) == True:
+				elif bool(s.mods & 128) == True:
 					newUserData = userUtils.getUserStatsRx(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
 					leaderboardHelperRelax.update(userID, newUserData["pp"], s.gameMode)	
