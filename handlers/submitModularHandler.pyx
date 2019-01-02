@@ -380,8 +380,11 @@ class handler(requestsManager.asyncRequestHandler):
 					scoreboardAuto.scoreboardAuto(username, s.gameMode, beatmapInfo, False)
 				else:
 					newScoreboard = scoreboardRelax.scoreboardRelax(username, s.gameMode, beatmapInfo, False)
-
+				newScoreboard.setPersonalBestRank()
+				personalBestID = newScoreboard.getPersonalBestID()
 				newScoreboard.setPersonalBest()
+				assert personalBestID is not None
+				currentPersonalBest = score.score(personalBestID, newScoreboard.personalBestRank)
 
 				# Get rank info (current rank, pp/score to next rank, user who is 1 rank above us)
 				if bool(s.mods & 128):
