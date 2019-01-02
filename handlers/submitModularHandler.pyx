@@ -138,6 +138,16 @@ class handler(requestsManager.asyncRequestHandler):
 				log.debug("Beatmap is not submitted/outdated/unknown. Score submission aborted.")
 				return
 
+			
+			# increment user playtime
+			length = 0
+			if s.passed:
+				length = userUtils.getBeatmapTime(beatmapInfo.beatmapID)
+			else:
+				length = math.ceil(int(self.get_argument("ft")) / 1000)
+				
+			userUtils.incrementPlaytime(userID, s.gameMode, length)
+			
 			# Calculate PP
 			midPPCalcException = None
 			try:
