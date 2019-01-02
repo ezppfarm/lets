@@ -46,7 +46,7 @@ class handler(requestsManager.asyncRequestHandler):
 
         try:
             lines = []
-            with open("../ci-system/ci-system/changelog.txt", "r") as f:
+            with open("../update.txt", "r") as f:
                 for i, l in enumerate(f):
                     if i >= 100:
                         break
