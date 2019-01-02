@@ -18,7 +18,7 @@ from enum import Enum, IntEnum
 from progressbar import DynamicMessage, FormatLabel
 
 from objects import beatmap
-from objects import rxscore
+from objects import scoreRelax
 from common.db import dbConnector
 from helpers import config
 from objects import glob
@@ -45,7 +45,7 @@ class LwScore:
     """
     __slots__ = ("score_id", "pp")
 
-    def __init__(self, score_id: Optional[int]=None, pp: Optional[int]=None, score_: Optional[rxscore.score]=None):
+    def __init__(self, score_id: Optional[int]=None, pp: Optional[int]=None, score_: Optional[scoreRelax.score]=None):
         """
         Initializes a new LwScore. Either score_id and pp OR just score must be provided.
 
@@ -218,7 +218,7 @@ class Worker:
         if start:
             self.threaded_work()
 
-    def recalc_score(self, score_data: Dict) -> rxscore:
+    def recalc_score(self, score_data: Dict) -> scoreRelax:
         """
         Recalculates pp for a score
 
@@ -226,7 +226,7 @@ class Worker:
         :return: new `score` object, with `pp` attribute set to the new value
         """
         # Create score object and set its data
-        s: rxscore.score = rxscore.score()
+        s: scoreRelax.score = scoreRelax.score()
         s.setDataFromDict(score_data)
         s.passed = True
 
