@@ -56,6 +56,8 @@ class handler(requestsManager.asyncRequestHandler):
 				screenshotID = generalUtils.randomString(8)
 				if not os.path.isfile(".data/screenshots/{}.jpg".format(screenshotID)):
 					found = True
+					glob.db.execute("INSERT INTO screenshots (ss_user_id, ss_name, ss_time) VALUES (%s, %s, %s)", [userID, screenshotID, int(time.time())]);
+
 
 			# Write screenshot file to .data folder
 			with open(".data/screenshots/{}.jpg".format(screenshotID), "wb") as f:
