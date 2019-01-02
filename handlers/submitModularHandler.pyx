@@ -199,9 +199,9 @@ class handler(requestsManager.asyncRequestHandler):
 				if oldPersonalBestRank == 0:
 					# oldPersonalBestRank not found in cache, get it from db through a scoreboard object
 					oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
-					oldScoreboard.setPersonalBest()
-					oldPersonalBestRank = max(oldScoreboard.personalBest, 0)
-				oldPersonalBest = score.score(s.oldPersonalBest, oldPersonalBestRank)
+					oldScoreboard.setPersonalBestRank()
+					oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
+				oldPersonalBest = score.score(s.oldPersonalBestRank, oldPersonalBestRank)
 			else:
 				oldPersonalBestRank = 0
 				oldPersonalBest = None
@@ -323,14 +323,6 @@ class handler(requestsManager.asyncRequestHandler):
 				oldUserData = glob.userStatsCache.get(userID, s.gameMode)
 				oldRank = userUtils.getGameRank(userID, s.gameMode)
 
-				# Try to get oldPersonalBestRank from cache
-				oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
-				if oldPersonalBestRank == 0:
-					# oldPersonalBestRank not found in cache, get it from db
-					oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
-					oldScoreboard.setPersonalBest()
-					oldPersonalBestRank = oldScoreboard.personalBest if oldScoreboard.personalBest > 0 else 0
-
 			# Always update users stats (total/ranked score, playcount, level, acc and pp)
 			# even if not passed
 			log.debug("Updating {}'s stats...".format(username))
@@ -394,10 +386,10 @@ class handler(requestsManager.asyncRequestHandler):
 					scoreboardAuto.scoreboardAuto(username, s.gameMode, beatmapInfo, False)
 				else:
 					newScoreboard = scoreboardRelax.scoreboardRelax(username, s.gameMode, beatmapInfo, False)
-				newScoreboard.setPersonalBest()
-				personalBestID = newScoreboard.getPersonalBest()
+				newScoreboard.setPersonalBestRank()
+				personalBestID = newScoreboard.getPersonalBestid()
 				assert personalBestID is not None
-				currentPersonalBest = score.score(personalBestID, newScoreboard.personalBest)
+				currentPersonalBest = score.score(personalBestID, newScoreboard.personalBestRank)
 
 				# Get rank info (current rank, pp/score to next rank, user who is 1 rank above us)
 				if bool(s.mods & 128):
