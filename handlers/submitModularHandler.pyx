@@ -25,6 +25,7 @@ from helpers import replayHelper
 from helpers import leaderboardHelper
 from helpers import leaderboardHelperRelax
 from helpers import leaderboardHelperAuto
+from helpers.generalHelper import zingonify
 from objects import beatmap
 from objects import glob
 from objects import score
@@ -452,14 +453,7 @@ class handler(requestsManager.asyncRequestHandler):
 						])
 					]
 				# Build final string
-				output = ""
-				for line, val in output.items():
-					output += "{}:{}".format(line, val)
-					if val != "\n":
-						if (len(output) - 1) != list(output.keys()).index(line):
-							output += "|"
-						else:
-							output += "\n"
+				output = "\n".join(zingonify(x) for x in dicts)
 
 				# Some debug messages
 				log.debug("Generated output for online ranking screen!")
