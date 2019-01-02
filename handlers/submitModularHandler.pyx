@@ -199,7 +199,7 @@ class handler(requestsManager.asyncRequestHandler):
 				if oldPersonalBestRank == 0:
 					# oldPersonalBestRank not found in cache, get it from db through a scoreboard object
 					oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
-					oldScoreboard.setPersonalBestRank()
+					oldScoreboard.setPersonalBest()
 					oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
 				oldPersonalBest = score.score(s.oldPersonalBest, oldPersonalBestRank)
 			else:
@@ -377,7 +377,7 @@ class handler(requestsManager.asyncRequestHandler):
 
 			# At the end, check achievements
 			if s.passed:
-				new_achievements = secret.achievements.utils.unlock_achievements(s, beatmapInfo, newUserData)
+				#new_achievements = secret.achievements.utils.unlock_achievements(s, beatmapInfo, newUserData)
 
 			# Output ranking panel only if we passed the song
 			# and we got valid beatmap info from db
@@ -394,7 +394,7 @@ class handler(requestsManager.asyncRequestHandler):
 					scoreboardAuto.scoreboardAuto(username, s.gameMode, beatmapInfo, False)
 				else:
 					newScoreboard = scoreboardRelax.scoreboardRelax(username, s.gameMode, beatmapInfo, False)
-				newScoreboard.setPersonalBestRank()
+				newScoreboard.setPersonalBest()
 				personalBestID = newScoreboard.getPersonalBestID()
 				assert personalBestID is not None
 				currentPersonalBest = score.score(personalBestID, newScoreboard.personalBestRank)
