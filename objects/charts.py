@@ -5,6 +5,11 @@ class Chart:
     """
     Chart base class
     """
+    
+    def f(string):
+        frame = sys._getframe(1)
+        return string.format(**frame.f_locals)
+    
     def __init__(self, id_, url, name):
         """
         Initializes a new chart.
