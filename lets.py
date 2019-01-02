@@ -61,6 +61,7 @@ def make_app():
 		(r"/web/check-updates.php", checkUpdatesHandler.handler),
 		(r"/web/osu-error.php", osuErrorHandler.handler),
 		(r"/web/osu-comment.php", commentHandler.handler),
+		(r"/p/changelog", changelogHandler.handler),
 		(r"/web/osu-rate.php", rateHandler.handler),
 		(r"/ss/(.*)", getScreenshotHandler.handler),
 		(r"/web/maps/(.*)", mapsHandler.handler),
