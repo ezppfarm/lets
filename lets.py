@@ -16,7 +16,7 @@ from common.ddog import datadogClient
 from common.log import logUtils as log
 from common.redis import pubSub
 from common.web import schiavo
-from handlers import apiCacheBeatmapHandler, rateHandler
+from handlers import apiCacheBeatmapHandler, rateHandler, changelogHandler
 from handlers import apiPPHandler
 from handlers import apiStatusHandler
 from handlers import banchoConnectHandler
