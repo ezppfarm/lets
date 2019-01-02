@@ -16,11 +16,10 @@ class ChangelogDate:
 
 
 class ChangelogEntry:
-    def __init__(self, timestamp, author, description, repo):
+    def __init__(self, timestamp, author, description):
         self.timestamp = ChangelogDate(int(timestamp))
         self.author = author.strip()
         self._description = description.strip()
-        self.repo = repo.strip()
 
     @property
     def description(self):
@@ -34,7 +33,7 @@ class ChangelogEntry:
             ""
 
     def __str__(self):
-        return f"{self.symbol}\t{self.author}\t{self.repo}: {self.description}"
+        return f"{self.symbol}\t{self.author}\t: {self.description}"
 
 
 class handler(requestsManager.asyncRequestHandler):
