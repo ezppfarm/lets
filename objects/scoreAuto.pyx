@@ -7,15 +7,15 @@ from common.ripple import userUtils
 from constants import rankedStatuses
 from common.ripple import scoreUtils
 from objects import glob
-from pp import rippoppai
+from pp import autooppai
 from pp import wifipiano2
 from pp import cicciobello
 
 
 class score:
 	PP_CALCULATORS = {
-		gameModes.STD: rippoppai.oppai,
-		gameModes.TAIKO: rippoppai.oppai,
+		gameModes.STD: autooppai.oppai,
+		gameModes.TAIKO: autooppai.oppai,
 		gameModes.CTB: cicciobello.Cicciobello,
 		gameModes.MANIA: wifipiano2.piano
 	}
