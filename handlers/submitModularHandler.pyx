@@ -200,8 +200,8 @@ class handler(requestsManager.asyncRequestHandler):
 					# oldPersonalBestRank not found in cache, get it from db through a scoreboard object
 					oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
 					oldScoreboard.setPersonalBest()
-					oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
-				oldPersonalBest = score.score(s.oldPersonalBest, oldPersonalBestRank)
+					oldPersonalBestRank = max(oldScoreboard.personalBest, 0)
+				oldPersonalBest = score.score(s.oldPersonalBest, oldPersonalBest)
 			else:
 				oldPersonalBestRank = 0
 				oldPersonalBest = None
