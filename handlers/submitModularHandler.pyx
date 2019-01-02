@@ -201,7 +201,7 @@ class handler(requestsManager.asyncRequestHandler):
 					oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
 					oldScoreboard.setPersonalBest()
 					oldPersonalBestRank = max(oldScoreboard.personalBest, 0)
-				oldPersonalBest = score.score(s.oldPersonalBest, oldPersonalBest)
+				oldPersonalBest = score.score(s.oldPersonalBest, oldPersonalBestRank)
 			else:
 				oldPersonalBestRank = 0
 				oldPersonalBest = None
@@ -329,7 +329,7 @@ class handler(requestsManager.asyncRequestHandler):
 					# oldPersonalBestRank not found in cache, get it from db
 					oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
 					oldScoreboard.setPersonalBest()
-					oldPersonalBestRank = oldScoreboard.personalBestRank if oldScoreboard.personalBestRank > 0 else 0
+					oldPersonalBestRank = oldScoreboard.personalBest if oldScoreboard.personalBest > 0 else 0
 
 			# Always update users stats (total/ranked score, playcount, level, acc and pp)
 			# even if not passed
@@ -395,9 +395,9 @@ class handler(requestsManager.asyncRequestHandler):
 				else:
 					newScoreboard = scoreboardRelax.scoreboardRelax(username, s.gameMode, beatmapInfo, False)
 				newScoreboard.setPersonalBest()
-				personalBestID = newScoreboard.getPersonalBestID()
+				personalBestID = newScoreboard.getPersonalBest()
 				assert personalBestID is not None
-				currentPersonalBest = score.score(personalBestID, newScoreboard.personalBestRank)
+				currentPersonalBest = score.score(personalBestID, newScoreboard.personalBest)
 
 				# Get rank info (current rank, pp/score to next rank, user who is 1 rank above us)
 				if bool(s.mods & 128):
