@@ -461,7 +461,15 @@ class handler(requestsManager.asyncRequestHandler):
 							("onlineScoreId", s.scoreID)
 						])
 					]
-				output = "\n".join(zingonify(x) for x in dicts)
+				# Build final string
+				output = ""
+				for line, val in output.items():
+					output += "{}:{}".format(line, val)
+					if val != "\n":
+						if (len(output) - 1) != list(output.keys()).index(line):
+							output += "|"
+						else:
+							output += "\n"
 
 				# Some debug messages
 				log.debug("Generated output for online ranking screen!")
