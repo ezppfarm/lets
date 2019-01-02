@@ -345,13 +345,13 @@ class handler(requestsManager.asyncRequestHandler):
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
 					leaderboardHelper.update(userID, newUserData["pp"], s.gameMode)
 				elif s.completed == 3 and bool(s.mods & 8192) == True:
-					newUserData = userUtils.getUserStatsRx(userID, s.gameMode)
-					glob.userStatsCache.update(userID, s.gameMode, newUserData)
-					leaderboardHelperRelax.update(userID, newUserData["pp"], s.gameMode)				
-				elif s.completed == 3 and bool(s.mods & 128) == True:
 					newUserData = userUtils.getUserStatsAp(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
-					leaderboardHelperAuto.update(userID, newUserData["pp"], s.gameMode)	
+					leaderboardHelperAuto.update(userID, newUserData["pp"], s.gameMode)				
+				elif s.completed == 3 and bool(s.mods & 128) == True:
+					newUserData = userUtils.getUserStatsRx(userID, s.gameMode)
+					glob.userStatsCache.update(userID, s.gameMode, newUserData)
+					leaderboardHelperRelax.update(userID, newUserData["pp"], s.gameMode)	
 				
 
 			# TODO: Update total hits and max combo
