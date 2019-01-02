@@ -55,7 +55,7 @@ class handler(requestsManager.asyncRequestHandler):
             changelog_entries = []
             for line in lines:
                 parts = line.split("|")
-                if len(parts) != 5:
+                if len(parts) != 4:
                     continue
                 changelog_entries.append(ChangelogEntry(*parts[1:]))
 
