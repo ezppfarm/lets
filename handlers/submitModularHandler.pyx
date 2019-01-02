@@ -25,7 +25,6 @@ from helpers import replayHelper
 from helpers import leaderboardHelper
 from helpers import leaderboardHelperRelax
 from helpers import leaderboardHelperAuto
-from helpers.generalHelper import zingonify
 from objects import beatmap
 from objects import glob
 from objects import score
