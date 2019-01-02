@@ -487,7 +487,7 @@ class handler(requestsManager.asyncRequestHandler):
 				ppGained = newUserData["pp"] - oldUserData["pp"]
 				gainedRanks = oldRank - rankInfo["currentRank"]
 				# Write message to client
-				self.write(msg)
+				self.write(output)
 			else:
 				# No ranking panel, send just "ok"
 				self.write("ok")
