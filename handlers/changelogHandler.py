@@ -46,7 +46,7 @@ class handler(requestsManager.asyncRequestHandler):
 
         try:
             lines = []
-            with open("/home/ripple/other/changelog.txt", "r") as f:
+            with open("../ci_meme/changelog.txt", "r") as f:
                 for i, l in enumerate(f):
                     if i >= 100:
                         break
