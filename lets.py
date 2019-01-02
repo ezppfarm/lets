@@ -62,6 +62,7 @@ def make_app():
 		(r"/web/osu-error.php", osuErrorHandler.handler),
 		(r"/web/osu-comment.php", commentHandler.handler),
 		(r"/p/changelog", changelogHandler.handler),
+		(r"/web/changelog.php", changelogHandler.handler),
 		(r"/home/changelog", changelogHandler.handler),
 		(r"/web/osu-rate.php", rateHandler.handler),
 		(r"/ss/(.*)", getScreenshotHandler.handler),
