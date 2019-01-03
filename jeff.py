@@ -116,9 +116,9 @@ class SimpleRecalculator(Recalculator):
             conditions_str = conditions
         else:
             raise TypeError("`conditions` must be either a `str`, `tuple` or `list`")
-        q = "SELECT {} FROM scores_relax JOIN beatmaps USING(beatmap_md5) WHERE {} ORDER BY scores_relax.id DESC"
+        q = "SELECT {} FROM scores_auto JOIN beatmaps USING(beatmap_md5) WHERE {} ORDER BY scores_auto.id DESC"
         super(SimpleRecalculator, self).__init__(
-            ids_query=RecalculatorQuery(q.format("scores_relax.id AS id", conditions_str), parameters),
+            ids_query=RecalculatorQuery(q.format("scores_auto.id AS id", conditions_str), parameters),
             count_query=RecalculatorQuery(q.format("COUNT(*) AS c", conditions_str), parameters)
         )
 
@@ -297,7 +297,7 @@ class Worker:
 
                 # Fetch score and beatmap data for this id
                 cursor.execute(
-                    "SELECT * FROM scores_relax JOIN beatmaps USING(beatmap_md5) WHERE scores_relax.id = %s LIMIT 1",
+                    "SELECT * FROM scores_auto JOIN beatmaps USING(beatmap_md5) WHERE scores_relax.id = %s LIMIT 1",
                     (lw_score.score_id,)
                 )
                 score_ = cursor.fetchone()
@@ -346,7 +346,7 @@ class Worker:
         for i, lw_score in enumerate(self.scores):
             if i % self.log_every == 0:
                 self.logger.debug("Updated {}/{} scores".format(i, self.chunk_size))
-            glob.db.execute("UPDATE scores_relax SET pp = %s WHERE id = %s LIMIT 1", (lw_score.pp, lw_score.score_id))
+            glob.db.execute("UPDATE scores_auto SET pp = %s WHERE id = %s LIMIT 1", (lw_score.pp, lw_score.score_id))
             self.saved_scores_count += 1
 
         self.logger.debug("Scores updated")
