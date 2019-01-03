@@ -297,7 +297,7 @@ class Worker:
 
                 # Fetch score and beatmap data for this id
                 cursor.execute(
-                    "SELECT * FROM scores_auto JOIN beatmaps USING(beatmap_md5) WHERE scores_relax.id = %s LIMIT 1",
+                    "SELECT * FROM scores_auto JOIN beatmaps USING(beatmap_md5) WHERE scores_auto.id = %s LIMIT 1",
                     (lw_score.score_id,)
                 )
                 score_ = cursor.fetchone()
@@ -591,15 +591,15 @@ def main():
 
     # Get recalculator
     recalculators_gen = {
-        "zero": lambda: SimpleRecalculator(("scores_relax.completed = 3", "pp = 0")),
-        "recalc": lambda: SimpleRecalculator(("scores_relax.completed = 3", "pp > 750")),
-        "mods": lambda: SimpleRecalculator(("scores_relax.completed = 3", "mods & %s > 0"), (args.mods,)),
-        "id": lambda: SimpleRecalculator(("scores_relax.id = %s",), (args.id,)),
-        "gamemode": lambda: SimpleRecalculator(("scores_relax.completed = 3", "scores_relax.play_mode = %s",), (args.gamemode,)),
-        "loved": lambda: SimpleRecalculator(("scores_relax.completed = 3", "beatmaps.ranked = 5")),
-        "userid": lambda: SimpleRecalculator(("scores_relax.completed = 3", "scores_relax.userid = %s",), (args.userid,)),
-        "beatmapid": lambda: SimpleRecalculator(("scores_relax.completed = 3", "beatmaps.beatmap_id = %s",), (args.beatmapid,)),
-        "fixstdhd": lambda: SimpleRecalculator(("scores_relax.completed = 3", "scores_relax.play_mode = 0", "scores_relax.mods & 8 > 0"))
+        "zero": lambda: SimpleRecalculator(("scores_auto.completed = 3", "pp = 0")),
+        "recalc": lambda: SimpleRecalculator(("scores_auto.completed = 3", "pp > 750")),
+        "mods": lambda: SimpleRecalculator(("scores_auto.completed = 3", "mods & %s > 0"), (args.mods,)),
+        "id": lambda: SimpleRecalculator(("scores_auto.id = %s",), (args.id,)),
+        "gamemode": lambda: SimpleRecalculator(("scores_auto.completed = 3", "scores_auto.play_mode = %s",), (args.gamemode,)),
+        "loved": lambda: SimpleRecalculator(("scores_auto.completed = 3", "beatmaps.ranked = 5")),
+        "userid": lambda: SimpleRecalculator(("scores_auto.completed = 3", "scores_auto.userid = %s",), (args.userid,)),
+        "beatmapid": lambda: SimpleRecalculator(("scores_auto.completed = 3", "beatmaps.beatmap_id = %s",), (args.beatmapid,)),
+        "fixstdhd": lambda: SimpleRecalculator(("scores_auto.completed = 3", "scores_auto.play_mode = 0", "scores_auto.mods & 8 > 0"))
     }
     recalculator = None
     for k, v in vars(args).items():
