@@ -64,17 +64,24 @@ class beatmap:
 		
 			if frozen == 0 and self.rankedStatus > 1: 
 
-				glob.db.execute("UPDATE `beatmaps` SET  `latest_update` = %s, ranked_status_freezed` = %s, `ranked` = %s, `difficulty_std` = %s, `difficulty_taiko` = %s, `difficulty_ctb` = %s, `difficulty_mania` = %s, `max_combo` = %s  WHERE beatmap_id = %s ", [
-					int(time.time()),
-					frozen,
-					self.rankedStatus,
+				glob.db.execute("UPDATE `beatmaps` SET (`id`, `beatmap_id`, `beatmapset_id`, `beatmap_md5`, `song_name`, `ar`, `od`, `difficulty_std`, `difficulty_taiko`, `difficulty_ctb`, `difficulty_mania`, `max_combo`, `hit_length`, `bpm`, `ranked`, `latest_update`, `ranked_status_freezed`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", [
+					self.beatmapID,
+					self.beatmapSetID,
+					self.fileMD5,
+					self.songName.encode("utf-8", "ignore").decode("utf-8"),
+					self.AR,
+					self.OD,
 					self.starsStd,
 					self.starsTaiko,
 					self.starsCtb,
 					self.starsMania,
 					self.maxCombo,
-					self.beatmapID
-				])
+					self.hitLength,
+					self.bpm,
+					self.rankedStatus,
+					int(time.time()),
+					frozen
+			])
 		
 		else:
 			frozen = 0
