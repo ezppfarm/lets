@@ -103,7 +103,7 @@ class beatmap:
 					self.rankedStatus if frozen == 0 else 2,
 					int(time.time()),
 					frozen
-			])
+				])
 
 			except:
 				log.error("smth went wron on {} id".format(self.beatmapID))
