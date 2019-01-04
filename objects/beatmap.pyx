@@ -25,7 +25,7 @@ class beatmap:
 		self.beatmapID = 0
 		self.beatmapSetID = 0
 		self.offset = 0		# Won't implement
-		self.rating = 0. 	# Won't implement
+		self.rating = 0.
 
 		self.starsStd = 0.0	# stars for converted
 		self.starsTaiko = 0.0	# stars for converted
@@ -67,25 +67,26 @@ class beatmap:
 		# Add new beatmap data
 		
 		log.debug("Saving beatmap data in db...")
-		glob.db.execute("DELETE FROM beatmaps WHERE beatmap_id = %s LIMIT 1", [self.beatmapID])
-		glob.db.execute("INSERT INTO `beatmaps` (`id`, `beatmap_id`, `beatmapset_id`, `beatmap_md5`, `song_name`, `ar`, `od`, `difficulty_std`, `difficulty_taiko`, `difficulty_ctb`, `difficulty_mania`, `max_combo`, `hit_length`, `bpm`, `ranked`, `latest_update`, `ranked_status_freezed`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", [
-			self.beatmapID,
-			self.beatmapSetID,
-			self.fileMD5,
-			self.songName.encode("utf-8", "ignore").decode("utf-8"),
-			self.AR,
-			self.OD,
-			self.starsStd,
-			self.starsTaiko,
-			self.starsCtb,
-			self.starsMania,
-			self.maxCombo,
-			self.hitLength,
-			self.bpm,
-			self.rankedStatus if frozen == 0 else 2,
-			int(time.time()),
-			frozen
-		])
+		bdata = glob.db.fetch("SELECT id, ranked_status_freezed, ranked FROM beatmaps WHERE beatmap_md5 = %s OR beatmap_id = %s LIMIT 1", [self.fileMD5, self.beatmapID])
+		if bdata is None:
+			glob.db.execute("INSERT INTO `beatmaps` (`id`, `beatmap_id`, `beatmapset_id`, `beatmap_md5`, `song_name`, `ar`, `od`, `difficulty_std`, `difficulty_taiko`, `difficulty_ctb`, `difficulty_mania`, `max_combo`, `hit_length`, `bpm`, `ranked`, `latest_update`, `ranked_status_freezed`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", [
+				self.beatmapID,
+				self.beatmapSetID,
+				self.fileMD5,
+				self.songName.encode("utf-8", "ignore").decode("utf-8"),
+				self.AR,
+				self.OD,
+				self.starsStd,
+				self.starsTaiko,
+				self.starsCtb,
+				self.starsMania,
+				self.maxCombo,
+				self.hitLength,
+				self.bpm,
+				self.rankedStatus if frozen == 0 else 2,
+				int(time.time()),
+				frozen
+			])
 
 	def setDataFromDB(self, md5):
 		"""
