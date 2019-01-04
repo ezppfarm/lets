@@ -67,7 +67,7 @@ class beatmap:
 		# Add new beatmap data
 		
 		log.debug("Saving beatmap data in db...")
-		glob.db.execute("DELETE FROM beatmaps WHERE beatmap_id = %s LIMIT 1", [self.beatmap_id])
+		glob.db.execute("DELETE FROM beatmaps WHERE beatmap_id = %s LIMIT 1", [self.beatmapID])
 		glob.db.execute("INSERT INTO `beatmaps` (`id`, `beatmap_id`, `beatmapset_id`, `beatmap_md5`, `song_name`, `ar`, `od`, `difficulty_std`, `difficulty_taiko`, `difficulty_ctb`, `difficulty_mania`, `max_combo`, `hit_length`, `bpm`, `ranked`, `latest_update`, `ranked_status_freezed`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", [
 			beatmap_id,
 			self.beatmapSetID,
