@@ -63,10 +63,6 @@ class beatmap:
 				self.rankedStatus = bdata["ranked"]
 		
 			if frozen == 0 and self.rankedStatus > 1: 
-				glob.db.execute("UPDATE `beatmaps` SET   `ranking_data` = %s WHERE beatmap_id = %s ", [
-				self.rankingDate if self.rankedStatus > 0 else 0,
-				self.beatmapID
-				])
 
 				glob.db.execute("UPDATE `beatmaps` (`id`, `beatmap_id`, `beatmapset_id`, `beatmap_md5`, `song_name`, `ar`, `od`, `difficulty_std`, `difficulty_taiko`, `difficulty_ctb`, `difficulty_mania`, `max_combo`, `hit_length`, `bpm`, `ranked`, `latest_update`, `ranked_status_freezed`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", [
 					self.beatmapID,
