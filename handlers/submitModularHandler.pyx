@@ -476,7 +476,7 @@ class handler(requestsManager.asyncRequestHandler):
 								gameModes.getGamemodeFull(s.gameMode)
 							)
 						elif bool(s.mods & 8192) == True:
-							userUtils.logUserLog(" Achieved AutoPilot #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode)
+							userUtils.logUserLog(" Achieved AutoPilot #{} rank on ".format(newScoreboard.personalBest),s.fileMd5, userID, s.gameMode)
 							if (len(newScoreboard.scores) > 2):
 								userUtils.logUserLog("has lost AutoPilot first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)						
 							annmsg = "[AUTOPILOT] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
@@ -487,7 +487,7 @@ class handler(requestsManager.asyncRequestHandler):
 								gameModes.getGamemodeFull(s.gameMode)
 							)
 						else:
-							userUtils.logUserLog(" Achieved Vanilla #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode)
+							userUtils.logUserLog(" Achieved Vanilla #{} rank on ".format(newScoreboard.personalBest),s.fileMd5, userID, s.gameMode)
 							if (len(newScoreboard.scores) > 2):
 								userUtils.logUserLog("has lost Vanilla first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)
 							annmsg = "[VANILLA] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
