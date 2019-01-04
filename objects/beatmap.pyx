@@ -106,7 +106,7 @@ class beatmap:
 				])
 
 			except:
-				log.error("smth went wron on {} id".format(self.beatmapID))
+				log.error("who the fuck knows ¯\_(ツ)_/¯ {} id".format(self.beatmapID))
 				#glob.db.execute("DELETE FROM beatmaps WHERE beatmap_id = %s ",[self.beatmapID])
 				self.rankedStatus = rankedStatuses.NEED_UPDATE
 				pass
