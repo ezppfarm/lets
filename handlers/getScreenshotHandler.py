@@ -35,7 +35,7 @@ class handler(requestsManager.asyncRequestHandler):
 
 			# Display screenshot
 			self.write(data)
-			self.set_header("Content-type", "image/jpg")
+			self.set_header("Content-type", "image/png")
 			self.set_header("Content-length", len(data))
 		except exceptions.fileNotFoundException:
 			self.set_status(404)
