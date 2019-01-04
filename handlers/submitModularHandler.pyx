@@ -186,30 +186,25 @@ class handler(requestsManager.asyncRequestHandler):
 			
 			# Right before submitting the score, get the personal best score object (we need it for charts)
 			if s.passed and s.oldPersonalBest > 0:
-
-			if bool(s.mods & 128) == True:
-				oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
-				if oldPersonalBestRank == 0:
-					# oldPersonalBestRank not found in cache, get it from db
-					oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
-					oldScoreboard.setPersonalBest()
-					oldPersonalBestRank = oldScoreboard.personalBestRank if oldScoreboard.personalBestRank > 0 else 0	
-			elif bool(s.mods & 8192) == True:
-				oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
-				if oldPersonalBestRank == 0:
-					# oldPersonalBestRank not found in cache, get it from db
-					oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
-					oldScoreboard.setPersonalBest()
-					oldPersonalBestRank = oldScoreboard.personalBestRank if oldScoreboard.personalBestRank > 0 else 0
-			else:
-				# We have an older personal best. Get its rank (try to get it from cache first)
-				oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
-				if oldPersonalBestRank == 0:
-					# oldPersonalBestRank not found in cache, get it from db through a scoreboard object
-					oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
-					oldScoreboard.setPersonalBestRank()
-					oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
-				oldPersonalBest = score.score(s.oldPersonalBest, oldPersonalBestRank)
+				if bool(s.mods & 128) == True:
+					oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
+					if oldPersonalBestRank == 0:
+						oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
+						oldScoreboard.setPersonalBest()
+						oldPersonalBestRank = oldScoreboard.personalBestRank if oldScoreboard.personalBestRank > 0 else 0	
+				elif bool(s.mods & 8192) == True:
+					oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
+					if oldPersonalBestRank == 0:
+						oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
+						oldScoreboard.setPersonalBest()
+						oldPersonalBestRank = oldScoreboard.personalBestRank if oldScoreboard.personalBestRank > 0 else 0
+				else:
+					oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
+					if oldPersonalBestRank == 0:
+						oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
+						oldScoreboard.setPersonalBestRank()
+						oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
+					oldPersonalBest = score.score(s.oldPersonalBest, oldPersonalBestRank)
 			else:
 				oldPersonalBestRank = 0
 				oldPersonalBest = None
