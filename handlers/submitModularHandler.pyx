@@ -126,24 +126,23 @@ class handler(requestsManager.asyncRequestHandler):
 			s.setDataFromScoreData(scoreData)
 
 			if s.completed == -1:
-				# Duplicated score
-				log.warning("Duplicated score detected, this is normal right after restarting the server")
+				log.warning("We got a dulicated score.")
 				return
 
-			# Set score stuff missing in score data
+			
 			s.playerUserID = userID
 
-			# Get beatmap info
+			
 			beatmapInfo = beatmap.beatmap()
 			beatmapInfo.setDataFromDB(s.fileMd5)
 
-			# Make sure the beatmap is submitted and updated
+			
 			if beatmapInfo.rankedStatus == rankedStatuses.NOT_SUBMITTED or beatmapInfo.rankedStatus == rankedStatuses.NEED_UPDATE or beatmapInfo.rankedStatus == rankedStatuses.UNKNOWN:
 				log.debug("Beatmap is not submitted/outdated/unknown. Score submission aborted.")
 				return
 
 			
-			# increment user playtime
+		
 			length = 0
 			if s.passed:
 				length = userUtils.getBeatmapTime(beatmapInfo.beatmapID)
@@ -152,21 +151,16 @@ class handler(requestsManager.asyncRequestHandler):
 				
 			userUtils.incrementPlaytime(userID, s.gameMode, length)
 			
-			# Calculate PP
+		
 			midPPCalcException = None
 			try:
 				s.calculatePP()
 			except Exception as e:
-				# Intercept ALL exceptions and bypass them.
-				# We want to save scores even in case PP calc fails
-				# due to some rippoppai bugs.
-				# I know this is bad, but who cares since I'll rewrite
-				# the scores server again.
 				log.error("Caught an exception in pp calculation, re-raising after saving score in db")
 				s.pp = 0
 				midPPCalcException = e
 
-			# Restrict obvious cheaters
+			
 			if (s.pp >= 4000 and bool(s.mods & 128) == True and s.gameMode == gameModes.STD) and restricted == False:
 				userUtils.restrict(userID)
 				userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
@@ -182,11 +176,8 @@ class handler(requestsManager.asyncRequestHandler):
 			# Check notepad hack
 				
 			if bmk is None and bml is None:
-				# No bmk and bml params passed, edited or super old client
-				#log.warning("{} ({}) most likely submitted a score from an edited client or a super old client".format(username, userID), "cm")
 				pass
 			elif bmk != bml and restricted == False:
-				# bmk and bml passed and they are different, restrict the user
 				userUtils.restrict(userID)
 				userUtils.appendNotes(userID, "Restricted due to notepad hack")
 				log.warning("**{}** ({}) has been restricted due to notepad hack".format(username, userID), "cm")
@@ -195,6 +186,22 @@ class handler(requestsManager.asyncRequestHandler):
 			
 			# Right before submitting the score, get the personal best score object (we need it for charts)
 			if s.passed and s.oldPersonalBest > 0:
+
+			if bool(s.mods & 128) == True:
+				oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
+				if oldPersonalBestRank == 0:
+					# oldPersonalBestRank not found in cache, get it from db
+					oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
+					oldScoreboard.setPersonalBest()
+					oldPersonalBestRank = oldScoreboard.personalBestRank if oldScoreboard.personalBestRank > 0 else 0	
+			elif bool(s.mods & 8192) == True:
+				oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
+				if oldPersonalBestRank == 0:
+					# oldPersonalBestRank not found in cache, get it from db
+					oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
+					oldScoreboard.setPersonalBest()
+					oldPersonalBestRank = oldScoreboard.personalBestRank if oldScoreboard.personalBestRank > 0 else 0
+			else:
 				# We have an older personal best. Get its rank (try to get it from cache first)
 				oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
 				if oldPersonalBestRank == 0:
@@ -207,10 +214,11 @@ class handler(requestsManager.asyncRequestHandler):
 				oldPersonalBestRank = 0
 				oldPersonalBest = None
 
-			# Save score in db
+
+
 			s.saveScoreInDB()
 
-			# Client anti-cheat flags
+
 			'''ignoreFlags = 4
 			if glob.debug == True:
 				# ignore multiple client flags if we are in debug mode
@@ -221,63 +229,36 @@ class handler(requestsManager.asyncRequestHandler):
 				userHelper.appendNotes(userID, "-- Restricted due to clientside anti cheat flag ({}) (cheated score id: {})".format(haxFlags, s.scoreID))
 				log.warning("**{}** ({}) has been restricted due clientside anti cheat flag **({})**".format(username, userID, haxFlags), "cm")'''
 
-			# Mi stavo preparando per scendere
-			# Mi stavo preparando per comprare i dolci
-			# Oggi e' il compleanno di mio nipote
-			# Dovevamo festeggiare staseraaaa
-			# ----
-			# Da un momento all'altro ho sentito una signora
-			# Correte, correte se ne e' sceso un muro
-			# Da un momento all'altro ho sentito una signora
-			# Correte, correte se ne e' sceso un muro
-			# --- (io sto angora in ganottier ecche qua) ---
-			# Sono scesa e ho visto ilpalazzochesenee'caduto
-			# Ho preso a mio cognato, che stava svenuto
-			# Mia figlia e' scesa, mia figlia ha urlato
-			# "C'e' qualcuno sotto, C'e' qualcuno sotto"
-			# "C'e' qualcuno sotto, C'e' qualcuno sottoooooooooo"
-			# --- (scusatm che sto angor emozzionat non parlo ancora moltobbene) ---
-			# Da un momento all'altro ho sentito una signora
-			# Correte, correte se ne e' sceso un muro
-			# Da un momento all'altro ho sentito una signora
-			# Correte, correte se ne e' sceso un muro
-			# -- THIS IS THE PART WITH THE GOOD SOLO (cit <3) --
-			# Vedete quel palazzo la' vicino
-			# Se ne sta scendendo un po' alla volta
-			# Piano piano, devono prendere provvedimenti
-			# Al centro qua hanno fatto una bella ristrututuitriazione
-			# Hanno mess le panghina le fondane iffiori
-			# LALALALALALALALALA
+
 			if s.score < 0 or s.score > (2 ** 63) - 1:
 				userUtils.ban(userID)
 				userUtils.appendNotes(userID, "Banned due to negative score (score submitter)")
 
-			# Make sure the score is not memed
+
 			if s.gameMode == gameModes.MANIA and s.score > 1000000:
 				userUtils.ban(userID)
 				userUtils.appendNotes(userID, "Banned due to mania score > 1000000 (score submitter)")
 
-			# Ci metto la faccia, ci metto la testa e ci metto il mio cuore
+
 			if ((s.mods & mods.DOUBLETIME) > 0 and (s.mods & mods.HALFTIME) > 0) \
 					or ((s.mods & mods.HARDROCK) > 0 and (s.mods & mods.EASY) > 0)\
 					or ((s.mods & mods.SUDDENDEATH) > 0 and (s.mods & mods.NOFAIL) > 0):
 				userUtils.ban(userID)
 				userUtils.appendNotes(userID, "Impossible mod combination {} (score submitter)".format(s.mods))
 
-			# NOTE: Process logging was removed from the client starting from 20180322
+
 			if s.completed == 3 and "pl" in self.request.arguments:
 				butterCake.bake(self, s)
 
 			if bool(s.mods & 128) == True:
-				score_id_relax = s.scoreID # I'm not sure if it's needed as it still saved, but i wanna be safe rather than sorry
+				score_id_relax = s.scoreID 
 			elif bool(s.mods & 8192) == True:
 				score_id_auto = s.scoreID
 
-			# Save replay for all passed scores
-			# Make sure the score has an id as well (duplicated?, query error?)
+
 			if s.passed and s.scoreID > 0:
 				if "score" in self.request.files:
-					# Save the replay if it was provided
+
 					if bool(s.mods & 128) == True:
 						log.debug("Saving replay ({})...".format(score_id_relax))
 						replay = self.request.files["score"][0]["body"]
@@ -294,9 +275,9 @@ class handler(requestsManager.asyncRequestHandler):
 						with open(".data/replays/replay_{}.osr".format(s.scoreID), "wb") as f:
 							f.write(replay)
 
-					# no cono cono is bad
+
 				else:
-					# Restrict if no replay was provided
+
 					if not restricted:
 						userUtils.restrict(userID)
 						userUtils.appendNotes(userID, "Restricted due to missing replay while submitting a score "
@@ -305,27 +286,18 @@ class handler(requestsManager.asyncRequestHandler):
 							username, userID, s.fileMd5
 						), "cm")
 
-			# Update beatmap playcount (and passcount)
 			beatmap.incrementPlaycount(s.fileMd5, s.passed)
 
-			# Let the api know of this score
 			if s.scoreID:
 				glob.redis.publish("api:score_submission", s.scoreID)
-
-			# Re-raise pp calc exception after saving score, cake, replay etc
-			# so Sentry can track it without breaking score submission
 			if midPPCalcException is not None:
 				raise ppCalcException(midPPCalcException)
 
-            # If there was no exception, update stats and build score submitted panel
-			# Get "before" stats for ranking panel (only if passed)
 			if s.passed:
-				# Get stats and rank
+
 				oldUserData = glob.userStatsCache.get(userID, s.gameMode)
 				oldRank = userUtils.getGameRank(userID, s.gameMode)
 
-			# Always update users stats (total/ranked score, playcount, level, acc and pp)
-			# even if not passed
 			log.debug("Updating {}'s stats...".format(username))
 
 			if bool(s.mods & 128) == True:	
@@ -354,8 +326,6 @@ class handler(requestsManager.asyncRequestHandler):
 					leaderboardHelperRelax.update(userID, newUserData["pp"], s.gameMode)	
 				
 
-			# TODO: Update total hits and max combo
-			# Update latest activity
 			userUtils.updateLatestActivity(userID)
 
 			# IP log
@@ -400,7 +370,6 @@ class handler(requestsManager.asyncRequestHandler):
 				else:
 					rankInfo = leaderboardHelper.getRankInfo(userID, s.gameMode)
 
-				# Output dictionary
 				if newCharts:
 					log.debug("Using new charts")
 					dicts = [
@@ -452,15 +421,13 @@ class handler(requestsManager.asyncRequestHandler):
 							("onlineScoreId", s.scoreID)
 						])
 					]
-				# Build final string
 				output = "\n".join(zingonify(x) for x in dicts)
 
-				# Some debug messages
 				log.debug("Generated output for online ranking screen!")
 				log.debug(output)
 
 
-
+	
 				# send message to #announce if we're rank #1
 				if newScoreboard.personalBestRank == 1 and s.completed == 3 and restricted == False:
 					if newScoreboard.personalBestRank == 1 and oldPersonalBestRank != 1:
@@ -513,8 +480,6 @@ class handler(requestsManager.asyncRequestHandler):
 				# No ranking panel, send just "ok"
 				self.write("ok")
 
-			# Send username change request to bancho if needed
-			# (key is deleted bancho-side)
 			newUsername = glob.redis.get("ripple:change_username_pending:{}".format(userID))
 			if newUsername is not None:
 				log.debug("Sending username change request for user {} to Bancho".format(userID))
@@ -530,24 +495,14 @@ class handler(requestsManager.asyncRequestHandler):
 		except exceptions.loginFailedException:
 			self.write("error: pass")
 		except exceptions.need2FAException:
-			# Send error pass to notify the user
-			# resend the score at regular intervals
-			# for users with memy connection
 			self.set_status(408)
 			self.write("error: 2fa")
 		except exceptions.userBannedException:
 			self.write("error: ban")
 		except exceptions.noBanchoSessionException:
-			# We don't have an active bancho session.
-			# Don't ban the user but tell the client to send the score again.
-			# Once we are sure that this error doesn't get triggered when it
-			# shouldn't (eg: bancho restart), we'll ban users that submit
-			# scores without an active bancho session.
-			# We only log through schiavo atm (see exceptions.py).
 			self.set_status(408)
 			self.write("error: pass")
 		except:
-			# Try except block to avoid more errors
 			try:
 				log.error("Unknown error in {}!\n```{}\n{}```".format(MODULE_NAME, sys.exc_info(), traceback.format_exc()))
 				if glob.sentry:
@@ -555,8 +510,5 @@ class handler(requestsManager.asyncRequestHandler):
 			except:
 				pass
 
-			# Every other exception returns a 408 error (timeout)
-			# This avoids lost scores due to score server crash
-			# because the client will send the score again after some time.
 			if keepSending:
 				self.set_status(408)
