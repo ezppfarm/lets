@@ -201,7 +201,7 @@ class beatmap:
 
 		# We have data from osu!api, set beatmap data
 		log.debug("Got beatmap data from osu!api")
-		self.songName = "{} - {} [{}]".format(mainData["artist"], mainData["title"], mainData["version"])
+		self.songName = "{} - {} [{}]".format(mainData["artist"], mainData["title"], int(mainData["version"]))
 		self.fileMD5 = md5
 		self.rankedStatus = convertRankedStatus(int(mainData["approved"]))
 		self.beatmapID = int(mainData["beatmap_id"])
