@@ -83,9 +83,6 @@ class handler(requestsManager.asyncRequestHandler):
 				# Mods leaderboard, replace mods (-1, every mod) with "mods" GET parameters
 				modsFilter = int(self.get_argument("mods"))
 
-				# Disable automod (pp sort) if we are not donors
-				if not isDonor:
-					modsFilter = modsFilter & ~mods.AUTOPLAY
 			elif scoreboardType == 3 and isDonor:
 				# Friends leaderboard
 				friends = True
@@ -116,16 +113,6 @@ class handler(requestsManager.asyncRequestHandler):
 			data += bmap.getData(sboard.totalScores, scoreboardVersion)
 			data += sboard.getScoresData()
 			self.write(data)
-
-			# Send bancho notification if needed
-			if modsFilter > -1:
-				knowsPPLeaderboard = glob.redis.get("lets:knows_pp_leaderboard:{}".format(userID)) is not None
-				if modsFilter & mods.AUTOPLAY > 0 and not knowsPPLeaderboard:
-					glob.redis.set("lets:knows_pp_leaderboard:{}".format(userID), "1", 1800)
-					glob.redis.publish("peppy:notification", json.dumps({
-						"userID": userID,
-						"message": "Hi there! Scores are now sorted by PP. You can change scores sort mode by toggling the 'Auto' mod and filtering the leaderboard by Active mods. Note that this option is available only for donors and we don't recommend saving replays when the leaderboard is sorted by pp, due to some client limitations."
-					}))
 
 
 			# Datadog stats
