@@ -81,7 +81,7 @@ class beatmap:
 					self.rankedStatus,
 					int(time.time()),
 					frozen
-			])
+				])
 		
 		else:
 			frozen = 0
