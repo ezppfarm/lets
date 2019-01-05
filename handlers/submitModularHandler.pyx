@@ -438,6 +438,7 @@ class handler(requestsManager.asyncRequestHandler):
 				if newScoreboard.personalBestRank < 101 and s.completed == 3 and restricted == False and beatmapInfo.rankedStatus >= rankedStatuses.RANKED:
 						if bool(s.mods & 128) == True:
 							userUtils.logUserLog(" Achieved Relax #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.rank)
+							log.warning("{} got a rank #{}".format(username.encode().decode("ASCII", "ignore"), newScoreboard.personalBestRank)))
 							if newScoreboard.personalBestRank < 2:						
 								annmsg = "[RELAX] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 									userID,
@@ -450,6 +451,7 @@ class handler(requestsManager.asyncRequestHandler):
 									userUtils.logUserLogX("has lost Relax first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)								
 						elif bool(s.mods & 8192) == True:
 							userUtils.logUserLog(" Achieved AutoPilot #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.rank)
+							log.warning("{} got a rank #{}".format(username.encode().decode("ASCII", "ignore"), newScoreboard.personalBestRank)))
 							if newScoreboard.personalBestRank < 2:					
 								annmsg = "[AUTOPILOT] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 									userID,
@@ -462,6 +464,7 @@ class handler(requestsManager.asyncRequestHandler):
 									userUtils.logUserLogX("has lost AutoPilot first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)
 						else:
 							userUtils.logUserLog(" Achieved Vanilla #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.rank)
+							log.warning("{} got a rank #{}".format(username.encode().decode("ASCII", "ignore"), newScoreboard.personalBestRank)))
 							if newScoreboard.personalBestRank < 2:	
 								annmsg = "[VANILLA] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 									userID,
