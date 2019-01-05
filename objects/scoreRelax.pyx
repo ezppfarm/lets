@@ -225,16 +225,32 @@ class score:
 				self.rankedScoreIncrease = self.score
 				self.oldPersonalBest = 0
 			else:
-				# Compare personal best's score with current score
-				if self.pp > personalBest["pp"]:
-					# New best score
+				b = beatmap.beatmap(self.fileMd5, 0)
+				if b.rankedStatus == rankedStatuses.PENDING:
+					# Compare personal best's score with current score
+					if self.score > personalBest["score"]:
+						# New best score
+						self.completed = 3
+						self.rankedScoreIncrease = self.score-personalBest["score"]
+						self.oldPersonalBest = personalBest["id"]
+					else:
+						self.completed = 2
+						self.rankedScoreIncrease = 0
+						self.oldPersonalBest = 0
 					self.completed = 3
-					self.rankedScoreIncrease = self.score-personalBest["score"]
-					self.oldPersonalBest = personalBest["id"]
 				else:
-					self.completed = 2
-					self.rankedScoreIncrease = 0
-					self.oldPersonalBest = 0
+					self.completed = 3
+					self.calculatePP()
+					# Compare personal best's score with current score
+					if self.pp > personalBest["pp"]:
+						# New best score
+						self.completed = 3
+						self.rankedScoreIncrease = self.score-personalBest["score"]
+						self.oldPersonalBest = personalBest["id"]
+					else:
+						self.completed = 2
+						self.rankedScoreIncrease = 0
+						self.oldPersonalBest = 0
 
 		log.info("Completed status: {}".format(self.completed))
 
