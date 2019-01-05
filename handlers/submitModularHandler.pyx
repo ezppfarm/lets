@@ -464,7 +464,7 @@ class handler(requestsManager.asyncRequestHandler):
 									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
 									gameModes.getGamemodeFull(s.gameMode)
 								)
-						userLogMsg = " Achieved Unranked Autopilot #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
+						userLogMsg = " Achieved Unranked Autopilot #{} rank on ".format(newScoreboard.personalBestRank)
 					else:
 						announceMsg = "[AUTOPILOT] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 									userID,
