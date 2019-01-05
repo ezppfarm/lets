@@ -51,7 +51,7 @@ class scoreboardAuto:
 
 		# Friends ranking
 		if self.friends:
-			friends = "AND (scores.userid IN (SELECT user2 FROM users_relationships WHERE user1 = %(userid)s) OR scores.userid = %(userid)s)"
+			friends = "AND (scores_auto.userid IN (SELECT user2 FROM users_relationships WHERE user1 = %(userid)s) OR scores_auto.userid = %(userid)s)"
 
 		# Sort and limit at the end
 		order = "ORDER BY score DESC"
@@ -99,7 +99,7 @@ class scoreboardAuto:
 
 		# Get top 50 scores
 		select = "SELECT *"
-		joins = "FROM scores STRAIGHT_JOIN users ON scores.userid = users.id STRAIGHT_JOIN users_stats ON users.id = users_stats.id WHERE scores.beatmap_md5 = %(beatmap_md5)s AND scores.play_mode = %(play_mode)s AND scores.completed = 3 AND (users.privileges & 1 > 0 OR users.id = %(userid)s)"
+		joins = "FROM scores STRAIGHT_JOIN users ON scores_auto.userid = users.id STRAIGHT_JOIN users_stats ON users.id = users_stats.id WHERE scores_auto.beatmap_md5 = %(beatmap_md5)s AND scores_auto.play_mode = %(play_mode)s AND scores_auto.completed = 3 AND (users.privileges & 1 > 0 OR users.id = %(userid)s)"
 
 		# Country ranking
 		if self.country:
