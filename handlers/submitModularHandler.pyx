@@ -346,11 +346,11 @@ class handler(requestsManager.asyncRequestHandler):
 				glob.redis.publish("peppy:update_cached_stats", userID)
 
 				# Get personal best after submitting the score
-				if bool(s.mods & 128) == true:
+				if bool(s.mods & 128) == True:
 					newScoreboard = scoreboardRelax.scoreboardRelax(username, s.gameMode, beatmapInfo, False)
 					newScoreboard.setPersonalBest()
 				elif bool(s.mods & 8192) == True:
-					newScoreboard =  scoreboardAuto.scoreboardAuto(username, s.gameMode, beatmapInfo, False)
+					newScoreboard = scoreboardAuto.scoreboardAuto(username, s.gameMode, beatmapInfo, False)
 					newScoreboard.setPersonalBest()
 				else:
 					newScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
