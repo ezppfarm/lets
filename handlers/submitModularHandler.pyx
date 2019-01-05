@@ -129,7 +129,7 @@ class handler(requestsManager.asyncRequestHandler):
 				s = score.score()
 
 			s.setDataFromScoreData(scoreData)
-
+			s.playerUserID = userID
 			if s.completed == -1:
 				log.warning("We got a dulicated score.")
 				return
