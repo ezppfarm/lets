@@ -74,7 +74,7 @@ class scoreboardAuto:
 		self.scores.append(-1)
 
 		# Make sure the beatmap is ranked
-		if self.beatmap.rankedStatus < rankedStatuses.RANKED or self.beatmap.rankedStatus != rankedStatuses.PENDING:
+		if self.beatmap.rankedStatus < rankedStatuses.RANKED and self.beatmap.rankedStatus != rankedStatuses.PENDING:
 			return
 
 		# Query parts
