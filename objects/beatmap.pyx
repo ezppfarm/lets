@@ -166,7 +166,6 @@ class beatmap:
 		self.maxCombo = int(data["max_combo"])
 		self.hitLength = int(data["hit_length"])
 		self.bpm = int(data["bpm"])
-		self.disablePP = bool(data["disable_pp"])
 		# Ranking panel statistics
 		self.playcount = int(data["playcount"]) if "playcount" in data else 0
 		self.passcount = int(data["passcount"]) if "passcount" in data else 0
