@@ -482,9 +482,8 @@ class handler(requestsManager.asyncRequestHandler):
 									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
 									gameModes.getGamemodeFull(s.gameMode)
 								)
-								if (len(newScoreboard.scores) > 2):
-									log.info(newScoreboard.scores)
-									userUtils.logUserLogX("has lost first place Vanilla on ",s.fileMd5, newScoreboard.scores[1].playerUserID, s.gameMode, s.rank)	
+								log.info(newScoreboard.scores)
+								userUtils.logUserLogX("has lost first place Vanilla on ",s.fileMd5, newScoreboard.scores[1].playerUserID, s.gameMode, s.rank)	
 								params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": annmsg})
 								requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))
 				if isRelaxing:
