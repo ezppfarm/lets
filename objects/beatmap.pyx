@@ -24,7 +24,7 @@ class beatmap:
 		self.beatmapID = 0
 		self.beatmapSetID = 0
 		self.offset = 0		# Won't implement
-		self.rating = .0 	# Won't implement
+		self.rating = 0. 	# Won't implement
 
 		self.starsStd = 0.0	# stars for converted
 		self.starsTaiko = 0.0	# stars for converted
