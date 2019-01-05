@@ -1,5 +1,5 @@
 import time
-
+from common.constants import gameModes
 from common.log import logUtils as log
 from constants import rankedStatuses
 from helpers import osuapiHelper
@@ -111,7 +111,7 @@ class beatmap:
 				self.rankedStatus = rankedStatuses.NEED_UPDATE
 				pass
 
-				
+
 	def setDataFromDB(self, md5):
 		"""
 		Set this object's beatmap data from db.
