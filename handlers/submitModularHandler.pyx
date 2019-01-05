@@ -440,7 +440,7 @@ class handler(requestsManager.asyncRequestHandler):
 
 	
 				# send message to #announce if we're rank #1
-				if newScoreboard.personalBestRank < 101 and s.completed == 3 and restricted == False and beatmapInfo.rankedStatus >= rankedStatuses.RANKED:
+				if newScoreboard.personalBestRank < 101 and s.completed == 3 and restricted == False and beatmapInfo.rankedStatus >= rankedStatuses.PENDING:
 						if isRelaxing:
 							userUtils.logUserLog(" Achieved Relax #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
 							log.warning("{} got a rank #{}".format(username, newScoreboard.personalBestRank))
