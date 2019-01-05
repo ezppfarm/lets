@@ -448,7 +448,9 @@ class handler(requestsManager.asyncRequestHandler):
 									gameModes.getGamemodeFull(s.gameMode)
 								)
 								if (len(newScoreboard.scores) > 2):
-									userUtils.logUserLogX("has lost Relax first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)								
+									userUtils.logUserLogX("has lost Relax first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)		
+								params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": annmsg})
+								requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))							
 						elif bool(s.mods & 8192) == True: 
 							userUtils.logUserLog(" Achieved AutoPilot #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
 							log.warning("{} got a rank #{}".format(username, newScoreboard.personalBestRank))
@@ -462,6 +464,8 @@ class handler(requestsManager.asyncRequestHandler):
 								)
 								if (len(newScoreboard.scores) > 2):
 									userUtils.logUserLogX("has lost AutoPilot first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)
+								params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": annmsg})
+								requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))
 						else:
 							userUtils.logUserLog(" Achieved Vanilla #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
 							log.warning("{} got a rank #{}".format(username, newScoreboard.personalBestRank))
@@ -475,8 +479,8 @@ class handler(requestsManager.asyncRequestHandler):
 								)
 								if (len(newScoreboard.scores) > 2):
 									userUtils.logUserLogX("has lost first place Vanilla on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode, s.rank)	
-						params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": annmsg})
-						requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))
+								params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": annmsg})
+								requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))
 				if bool(s.mods & 128) == True:
 					server = "Relax"
 				elif bool(s.mods & 8192) == True:
