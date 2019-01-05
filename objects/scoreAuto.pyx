@@ -25,7 +25,6 @@ class score:
 	def __init__(self, scoreID = None, rank = None, setData = True):
 		"""
 		Initialize a (empty) score object.
-
 		scoreID -- score ID, used to get score data from db. Optional.
 		rank -- score rank. Optional
 		setData -- if True, set score data from db using scoreID. Optional.
@@ -103,7 +102,6 @@ class score:
 	def setRank(self, rank):
 		"""
 		Force a score rank
-
 		rank -- new score rank
 		"""
 		self.rank = rank
@@ -112,7 +110,6 @@ class score:
 		"""
 		Set this object's score data from db
 		Sets playerUserID too
-
 		scoreID -- score ID
 		rank -- rank in scoreboard. Optional.
 		"""
@@ -124,7 +121,6 @@ class score:
 		"""
 		Set this object's score data from dictionary
 		Doesn't set playerUserID
-
 		data -- score dictionarty
 		rank -- rank in scoreboard. Optional.
 		"""
@@ -157,7 +153,6 @@ class score:
 	def setDataFromScoreData(self, scoreData):
 		"""
 		Set this object's score data from scoreData list (submit modular)
-
 		scoreData -- scoreData list
 		"""
 		if len(scoreData) >= 16:
@@ -181,12 +176,12 @@ class score:
 			self.playDateTime = int(time.time())
 			self.calculateAccuracy()
 			#osuVersion = scoreData[17]
-
+			self.calculatePP()
 			# Set completed status
 			self.setCompletedStatus()
 
 
-	def getData(self, pp=False):
+	def getData(self, pp=True):
 		"""Return score row relative to this score for getscores"""
 		return "{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|1\n".format(
 			self.scoreID,
@@ -215,8 +210,7 @@ class score:
 			userID = userUtils.getID(self.playerName)
 
 			# Make sure we don't have another score identical to this one
-			# TODO: time check
-			duplicate = glob.db.fetch("SELECT id FROM scores_auto WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND score = %s LIMIT 1", [userID, self.fileMd5, self.gameMode, self.score])
+			duplicate = glob.db.fetch("SELECT id FROM scores_auto WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND time = %s AND score = %s LIMIT 1", [userID, self.fileMd5, self.gameMode, self.date, self.score])
 			if duplicate is not None:
 				# Found same score in db. Don't save this score.
 				self.completed = -1
@@ -224,15 +218,13 @@ class score:
 
 			# No duplicates found.
 			# Get right "completed" value
-			personalBest = glob.db.fetch("SELECT id, score, pp FROM scores_auto WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND completed = 3 LIMIT 1", [userID, self.fileMd5, self.gameMode])
+			personalBest = glob.db.fetch("SELECT id, pp, score FROM scores_auto WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND completed = 3 LIMIT 1", [userID, self.fileMd5, self.gameMode])
 			if personalBest is None:
 				# This is our first score on this map, so it's our best score
 				self.completed = 3
 				self.rankedScoreIncrease = self.score
 				self.oldPersonalBest = 0
 			else:
-				self.completed = 3
-				self.calculatePP()
 				# Compare personal best's score with current score
 				if self.pp > personalBest["pp"]:
 					# New best score
@@ -244,7 +236,7 @@ class score:
 					self.rankedScoreIncrease = 0
 					self.oldPersonalBest = 0
 
-		log.debug("Completed status: {}".format(self.completed))
+		log.info("Completed status: {}".format(self.completed))
 
 	def saveScoreInDB(self):
 		"""
@@ -268,7 +260,7 @@ class score:
 			b = beatmap.beatmap(self.fileMd5, 0)
 
 		# Calculate pp
-		if b.rankedStatus >= rankedStatuses.RANKED and b.rankedStatus != rankedStatuses.UNKNOWN \
+		if b.rankedStatus >= rankedStatuses.RANKED and b.rankedStatus != rankedStatuses.LOVED and b.rankedStatus != rankedStatuses.UNKNOWN \
 			and scoreUtils.isRankable(self.mods) and self.passed and self.gameMode in score.PP_CALCULATORS:
 			calculator = score.PP_CALCULATORS[self.gameMode](b, self)
 			self.pp = calculator.pp
