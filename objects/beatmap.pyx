@@ -49,41 +49,66 @@ class beatmap:
 		"""
 		Add current beatmap data in db if not in yet
 		"""
+
+		if self.fileMD5 is None:
+			self.rankedStatus = rankedStatuses.NOT_SUBMITTED
+			return 
+
 		# Make sure the beatmap is not already in db
-		bdata = glob.db.fetch("SELECT id, ranked_status_freezed, ranked FROM beatmaps WHERE beatmap_md5 = %s OR beatmap_id = %s LIMIT 1", [self.fileMD5, self.beatmapID])
+		bdata = glob.db.fetch("SELECT ranked_status_freezed, ranked FROM beatmaps WHERE beatmap_md5 LIKE %s LIMIT 1", [self.fileMD5])
 		if bdata is not None:
-			# This beatmap is already in db, remove old record
-			# Get current frozen status
 			frozen = bdata["ranked_status_freezed"]
-			if frozen == 1:
+			if frozen > 0:
 				self.rankedStatus = bdata["ranked"]
-			log.debug("Deleting old beatmap data ({})".format(bdata["id"]))
-			glob.db.execute("DELETE FROM beatmaps WHERE id = %s LIMIT 1", [bdata["id"]])
+		
+			
+
+				glob.db.execute("UPDATE `beatmaps` SET (`id`, `beatmap_id`, `beatmapset_id`, `beatmap_md5`, `song_name`, `ar`, `od`, `difficulty_std`, `difficulty_taiko`, `difficulty_ctb`, `difficulty_mania`, `max_combo`, `hit_length`, `bpm`, `ranked`, `latest_update`, `ranked_status_freezed`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", [
+					self.beatmapID,
+					self.beatmapSetID,
+					self.fileMD5,
+					self.songName.encode("utf-8", "ignore").decode("utf-8"),
+					self.AR,
+					self.OD,
+					self.starsStd,
+					self.starsTaiko,
+					self.starsCtb,
+					self.starsMania,
+					self.maxCombo,
+					self.hitLength,
+					self.bpm,
+					self.rankedStatus,
+					int(time.time()),
+					frozen
+				])
+		
 		else:
-			# Unfreeze beatmap status
 			frozen = 0
+			try:
+				glob.db.execute("INSERT INTO `beatmaps` (`id`, `beatmap_id`, `beatmapset_id`, `beatmap_md5`, `song_name`, `ar`, `od`, `difficulty_std`, `difficulty_taiko`, `difficulty_ctb`, `difficulty_mania`, `max_combo`, `hit_length`, `bpm`, `ranked`, `latest_update`, `ranked_status_freezed`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", [
+					self.beatmapID,
+					self.beatmapSetID,
+					self.fileMD5,
+					self.songName.encode("utf-8", "ignore").decode("utf-8"),
+					self.AR,
+					self.OD,
+					self.starsStd,
+					self.starsTaiko,
+					self.starsCtb,
+					self.starsMania,
+					self.maxCombo,
+					self.hitLength,
+					self.bpm,
+					self.rankedStatus if frozen == 0 else 2,
+					int(time.time()),
+					frozen
+				])
 
-		# Add new beatmap data
-		log.debug("Saving beatmap data in db...")
-		glob.db.execute("INSERT INTO `beatmaps` (`id`, `beatmap_id`, `beatmapset_id`, `beatmap_md5`, `song_name`, `ar`, `od`, `difficulty_std`, `difficulty_taiko`, `difficulty_ctb`, `difficulty_mania`, `max_combo`, `hit_length`, `bpm`, `ranked`, `latest_update`, `ranked_status_freezed`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", [
-			self.beatmapID,
-			self.beatmapSetID,
-			self.fileMD5,
-			self.songName.encode("utf-8", "ignore").decode("utf-8"),
-			self.AR,
-			self.OD,
-			self.starsStd,
-			self.starsTaiko,
-			self.starsCtb,
-			self.starsMania,
-			self.maxCombo,
-			self.hitLength,
-			self.bpm,
-			self.rankedStatus if frozen == 0 else 2,
-			int(time.time()),
-			frozen
-		])
-
+			except:
+				log.error("who the fuck knows ¯\_(ツ)_/¯ {} id".format(self.beatmapID))
+				#glob.db.execute("DELETE FROM beatmaps WHERE beatmap_id = %s ",[self.beatmapID])
+				self.rankedStatus = rankedStatuses.NEED_UPDATE
+				pass
 	def setDataFromDB(self, md5):
 		"""
 		Set this object's beatmap data from db.
