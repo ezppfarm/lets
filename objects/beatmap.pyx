@@ -281,17 +281,17 @@ class beatmap:
 			log.debug("Beatmap found in db")
 
 		log.debug("{}\n{}\n{}\n{}".format(self.starsStd, self.starsTaiko, self.starsCtb, self.starsMania))
-
+	
 	def getData(self, totalScores=0, version=4):
 		"""
 		Return this beatmap's data (header) for getscores
 		return -- beatmap header for getscores
 		"""
+		rankedStatusOutput = self.rankedStatus
 		# Fix loved maps for old clients
 		if version < 4 and self.rankedStatus == rankedStatuses.LOVED:
 			rankedStatusOutput = rankedStatuses.QUALIFIED
-		else:
-			rankedStatusOutput = self.rankedStatus
+			
 		data = "{}|false".format(rankedStatusOutput)
 		if self.rankedStatus != rankedStatuses.NOT_SUBMITTED and self.rankedStatus != rankedStatuses.NEED_UPDATE and self.rankedStatus != rankedStatuses.UNKNOWN:
 			# If the beatmap is updated and exists, the client needs more data
