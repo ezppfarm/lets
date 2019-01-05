@@ -453,7 +453,7 @@ class handler(requestsManager.asyncRequestHandler):
 									gameModes.getGamemodeFull(s.gameMode)
 								)
 								if (len(newScoreboard.scores) > 2):
-									userUtils.logUserLogX("has lost Relax first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)		
+									userUtils.logUserLogX("has lost Relax first place on ",s.fileMd5, newScoreboard.scores[1].playerUserID, s.gameMode)		
 								params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": annmsg})
 								requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))							
 						elif isAutoing: 
@@ -468,7 +468,7 @@ class handler(requestsManager.asyncRequestHandler):
 									gameModes.getGamemodeFull(s.gameMode)
 								)
 								if (len(newScoreboard.scores) > 2):
-									userUtils.logUserLogX("has lost AutoPilot first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)
+									userUtils.logUserLogX("has lost AutoPilot first place on ",s.fileMd5, newScoreboard.scores[1].playerUserID, s.gameMode)
 								params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": annmsg})
 								requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))
 						else:
@@ -483,7 +483,7 @@ class handler(requestsManager.asyncRequestHandler):
 									gameModes.getGamemodeFull(s.gameMode)
 								)
 								if (len(newScoreboard.scores) > 2):
-									userUtils.logUserLogX("has lost first place Vanilla on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode, s.rank)	
+									userUtils.logUserLogX("has lost first place Vanilla on ",s.fileMd5, newScoreboard.scores[1].playerUserID, s.gameMode, s.rank)	
 								params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": annmsg})
 								requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))
 				if isRelaxing:
