@@ -328,8 +328,7 @@ class beatmap:
 
 	@property
 	def is_rankable(self):
-		return self.rankedStatus >= rankedStatuses.RANKED \
-			   and self.rankedStatus != rankedStatuses.UNKNOWN
+		return self.rankedStatus >= rankedStatuses.RANKED and self.rankedStatus != rankedStatuses.UNKNOWN
 
 	@property
 	def is_mode_specific(self):
