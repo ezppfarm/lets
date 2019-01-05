@@ -134,9 +134,9 @@ class beatmap:
 		if data["ranked"] >= rankedStatuses.RANKED and data["ranked_status_freezed"] == 0:
 			expire *= 3
 
-		# Make sure the beatmap data in db is not too old
-		if int(expire) > 0 and time.time() > data["latest_update"]+int(expire) and not data["ranked_status_freezed"]:
-			return False
+		if int(expire) > 0 and time.time() > data["latest_update"]+int(expire):
+			if data["ranked_status_freezed"] == 1:
+				self.setDataFromDict(data)
 
 		# Data in DB, set beatmap data
 		log.debug("Got beatmap data from db")
@@ -222,7 +222,7 @@ class beatmap:
 
 		# We have data from osu!api, set beatmap data
 		log.debug("Got beatmap data from osu!api")
-		self.songName = "{} - {} [{}]".format(mainData["artist"], mainData["title"], str(mainData["version"]))
+		self.songName = "{} - {} [{}]".format(mainData["artist"], mainData["title"], mainData["version"])
 		self.fileMD5 = md5
 		self.rankedStatus = convertRankedStatus(int(mainData["approved"]))
 		self.beatmapID = int(mainData["beatmap_id"])
@@ -264,7 +264,7 @@ class beatmap:
 		# Force refresh from osu api.
 		# We get data before to keep frozen maps ranked
 		# if they haven't been updated
-		if dbResult == True and self.refresh:
+		if dbResult and self.refresh
 			dbResult = False
 
 		if not dbResult:
