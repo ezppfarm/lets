@@ -376,7 +376,61 @@ class handler(requestsManager.asyncRequestHandler):
 				else:
 					rankInfo = leaderboardHelper.getRankInfo(userID, s.gameMode)
 
-	
+				if newCharts:
+					log.debug("Using new charts")
+					dicts = [
+						collections.OrderedDict([
+							("beatmapId", beatmapInfo.beatmapID),
+							("beatmapSetId", beatmapInfo.beatmapSetID),
+							("beatmapPlaycount", beatmapInfo.playcount + 1),
+							("beatmapPasscount", beatmapInfo.passcount + (s.completed == 3)),
+							("approvedDate", "")
+						]),
+						BeatmapChart(
+							oldPersonalBest if s.completed == 3 else currentPersonalBest,
+							currentPersonalBest if s.completed == 3 else s,
+							beatmapInfo.beatmapID,
+						),
+						OverallChart(
+							userID, oldUserData, newUserData, s, new_achievements, oldRank, rankInfo["currentRank"]
+						)
+					]
+				else:
+					log.debug("Using old charts")
+					dicts = [
+						collections.OrderedDict([
+							("beatmapId", beatmapInfo.beatmapID),
+							("beatmapSetId", beatmapInfo.beatmapSetID),
+							("beatmapPlaycount", beatmapInfo.playcount),
+							("beatmapPasscount", beatmapInfo.passcount),
+							("approvedDate", "")
+						]),
+						collections.OrderedDict([
+							("chartId", "overall"),
+							("chartName", "Overall Ranking"),
+							("chartEndDate", ""),
+							("beatmapRankingBefore", oldPersonalBestRank),
+							("beatmapRankingAfter", newScoreboard.personalBestRank),
+							("rankedScoreBefore", oldUserData["rankedScore"]),
+							("rankedScoreAfter", newUserData["rankedScore"]),
+							("totalScoreBefore", oldUserData["totalScore"]),
+							("totalScoreAfter", newUserData["totalScore"]),
+							("playCountBefore", newUserData["playcount"]),
+							("accuracyBefore", float(oldUserData["accuracy"])/100),
+							("accuracyAfter", float(newUserData["accuracy"])/100),
+							("rankBefore", oldRank),
+							("rankAfter", rankInfo["currentRank"]),
+							("toNextRank", rankInfo["difference"]),
+							("toNextRankUser", rankInfo["nextUsername"]),
+							("achievements", ""),
+							("achievements-new", secret.achievements.utils.achievements_response(new_achievements)),
+							("onlineScoreId", s.scoreID)
+						])
+					]
+				output = "\n".join(zingonify(x) for x in dicts)
+
+				log.debug("Generated output for online ranking screen!")
+				log.debug(output)
 
 
 	
@@ -437,7 +491,7 @@ class handler(requestsManager.asyncRequestHandler):
 				ppGained = newUserData["pp"] - oldUserData["pp"]
 				gainedRanks = oldRank - rankInfo["currentRank"]
 				# Write message to client
-				self.write("ok")
+				self.write(output)
 			else:
 				# No ranking panel, send just "ok"
 				self.write("ok")
