@@ -438,7 +438,7 @@ class handler(requestsManager.asyncRequestHandler):
 				log.debug(output)
 				if isRelaxing:
 					if beatmapInfo.rankedStatus == rankedStatuses.PENDING:
-						announceMsg = "[RELAX] {UNRANKED} [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
+						announceMsg = "[RELAX] (UNRANKED) [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 									userID,
 									username.encode().decode("ASCII", "ignore"),
 									beatmapInfo.beatmapID,
@@ -457,7 +457,7 @@ class handler(requestsManager.asyncRequestHandler):
 						userLogMsg = " Achieved Relax #{} rank on ".format(newScoreboard.personalBestRank)
 				elif isAutoing:
 					if beatmapInfo.rankedStatus == rankedStatuses.PENDING:
-						announceMsg = "[AUTOPILOT] {UNRANKED} [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
+						announceMsg = "[AUTOPILOT] (UNRANKED) [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 									userID,
 									username.encode().decode("ASCII", "ignore"),
 									beatmapInfo.beatmapID,
@@ -476,7 +476,7 @@ class handler(requestsManager.asyncRequestHandler):
 						userLogMsg = " Achieved Autopilot #{} rank on ".format(newScoreboard.personalBestRank)
 				else:
 					if beatmapInfo.rankedStatus == rankedStatuses.PENDING:
-						announceMsg = "[VANILLA] {UNRANKED} [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
+						announceMsg = "[VANILLA] (UNRANKED) [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 									userID,
 									username.encode().decode("ASCII", "ignore"),
 									beatmapInfo.beatmapID,
