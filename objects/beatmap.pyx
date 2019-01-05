@@ -44,7 +44,7 @@ class beatmap:
 
 		if md5 is not None and beatmapSetID is not None:
 			self.setData(md5, beatmapSetID)
-
+	
 	def addBeatmapToDB(self):
 		"""
 		Add current beatmap data in db if not in yet
@@ -61,7 +61,9 @@ class beatmap:
 			if frozen > 0:
 				self.rankedStatus = bdata["ranked"]
 		
-				glob.db.execute("UPDATE `beatmaps` SET `id`, `beatmap_id`, `beatmapset_id`, `beatmap_md5`, `song_name`, `ar`, `od`, `difficulty_std`, `difficulty_taiko`, `difficulty_ctb`, `difficulty_mania`, `max_combo`, `hit_length`, `bpm`, `ranked`, `latest_update`, `ranked_status_freezed` VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", [
+			
+
+				glob.db.execute("UPDATE `beatmaps` SET (`id`, `beatmap_id`, `beatmapset_id`, `beatmap_md5`, `song_name`, `ar`, `od`, `difficulty_std`, `difficulty_taiko`, `difficulty_ctb`, `difficulty_mania`, `max_combo`, `hit_length`, `bpm`, `ranked`, `latest_update`, `ranked_status_freezed`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", [
 					self.beatmapID,
 					self.beatmapSetID,
 					self.fileMD5,
@@ -133,14 +135,13 @@ class beatmap:
 			expire *= 3
 
 		# Make sure the beatmap data in db is not too old
-		if int(expire) > 0 and time.time() > data["latest_update"]+int(expire):
-			if data["ranked_status_freezed"] == 1:
-				self.setDataFromDict(data)
+		if int(expire) > 0 and time.time() > data["latest_update"]+int(expire) and not data["ranked_status_freezed"]:
 			return False
 
 		# Data in DB, set beatmap data
 		log.debug("Got beatmap data from db")
 		self.setDataFromDict(data)
+		self.rating = data["rating"]	# db only, we don't want the rating from osu! api.
 		return True
 
 	def setDataFromDict(self, data):
@@ -221,7 +222,7 @@ class beatmap:
 
 		# We have data from osu!api, set beatmap data
 		log.debug("Got beatmap data from osu!api")
-		self.songName = "{} - {} [{}]".format(mainData["artist"], mainData["title"], mainData["version"])
+		self.songName = "{} - {} [{}]".format(mainData["artist"], mainData["title"], str(mainData["version"]))
 		self.fileMD5 = md5
 		self.rankedStatus = convertRankedStatus(int(mainData["approved"]))
 		self.beatmapID = int(mainData["beatmap_id"])
@@ -263,7 +264,7 @@ class beatmap:
 		# Force refresh from osu api.
 		# We get data before to keep frozen maps ranked
 		# if they haven't been updated
-		if dbResult and self.refresh:
+		if dbResult == True and self.refresh:
 			dbResult = False
 
 		if not dbResult:
