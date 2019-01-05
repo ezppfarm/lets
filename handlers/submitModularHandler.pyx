@@ -114,11 +114,16 @@ class handler(requestsManager.asyncRequestHandler):
 			# Get restricted
 			restricted = userUtils.isRestricted(userID)
 
+			# Get variables for relax
+			used_mods = int(scoreData[13])
+			isRelaxing = used_mods & 128
+			isAutoing = used_mods & 8192
+
 			# Create score object and set its data
 			log.info("{} has submitted a score on {}...".format(username, scoreData[0]))
-			if bool(int(scoreData[13]) & 128) == True:
+			if isRelaxing:
 				s = scoreRelax.score()
-			elif bool(int(scoreData[13]) & 8192) == True:
+			elif isAutoing:
 				s = scoreAuto.score()
 			else:
 				s = score.score()
@@ -186,14 +191,14 @@ class handler(requestsManager.asyncRequestHandler):
 			
 			# Right before submitting the score, get the personal best score object (we need it for charts)
 			if s.passed and s.oldPersonalBest > 0:
-				if bool(s.mods & 128) == True:
+				if isRelaxing:
 					oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
 					if oldPersonalBestRank == 0:
 						oldScoreboard = scoreboardRelax.scoreboardRelax(username, s.gameMode, beatmapInfo, False)
 						oldScoreboard.setPersonalBestRank()
 						oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
 					oldPersonalBest = scoreRelax.score(s.oldPersonalBest, oldPersonalBestRank)
-				elif bool(s.mods & 8192) == True:
+				elif isAutoing:
 					oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
 					if oldPersonalBestRank == 0:
 						oldScoreboard = scoreboardAuto.scoreboardAuto(username, s.gameMode, beatmapInfo, False)
@@ -247,21 +252,21 @@ class handler(requestsManager.asyncRequestHandler):
 			if s.completed == 3 and "pl" in self.request.arguments:
 				butterCake.bake(self, s)
 
-			if bool(s.mods & 128) == True:
+			if isRelaxing:
 				score_id_relax = s.scoreID 
-			elif bool(s.mods & 8192) == True:
+			elif isAutoing:
 				score_id_auto = s.scoreID
 
 
 			if s.passed and s.scoreID > 0:
 				if "score" in self.request.files:
 
-					if bool(s.mods & 128) == True:
+					if isRelaxing:
 						log.debug("Saving replay ({})...".format(score_id_relax))
 						replay = self.request.files["score"][0]["body"]
 						with open(".data/replays_relax/replay_{}.osr".format(score_id_relax), "wb") as f:
 							f.write(replay)
-					elif bool(s.mods & 8192) == True:
+					elif isAutoing:
 						log.debug("Saving replay ({})...".format(score_id_auto))
 						replay = self.request.files["score"][0]["body"]
 						with open(".data/replays_auto/replay_{}.osr".format(score_id_auto), "wb") as f:
@@ -297,9 +302,9 @@ class handler(requestsManager.asyncRequestHandler):
 
 			log.debug("Updating {}'s stats...".format(username))
 
-			if bool(s.mods & 128) == True:	
+			if isRelaxing:	
 				userUtils.updateStatsRx(userID, s)
-			if bool(s.mods & 8192) == True:	
+			if isAutoing:	
 				userUtils.updateStatsAp(userID, s)
 			else:
 				userUtils.updateStats(userID, s)
@@ -309,18 +314,18 @@ class handler(requestsManager.asyncRequestHandler):
 			# (only if we passed that song)
 			if s.passed:
 				# Get new stats
-				if bool(s.mods & 128) == False:
-					newUserData = userUtils.getUserStats(userID, s.gameMode)
-					glob.userStatsCache.update(userID, s.gameMode, newUserData)
-					leaderboardHelper.update(userID, newUserData["pp"], s.gameMode)
-				elif bool(s.mods & 8192) == True:
-					newUserData = userUtils.getUserStatsAp(userID, s.gameMode)
-					glob.userStatsCache.update(userID, s.gameMode, newUserData)
-					leaderboardHelperAuto.update(userID, newUserData["pp"], s.gameMode)				
-				elif bool(s.mods & 128) == True:
+				if isRelaxing:
 					newUserData = userUtils.getUserStatsRx(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
 					leaderboardHelperRelax.update(userID, newUserData["pp"], s.gameMode)	
+				elif isAutoing:
+					newUserData = userUtils.getUserStatsAp(userID, s.gameMode)
+					glob.userStatsCache.update(userID, s.gameMode, newUserData)
+					leaderboardHelperAuto.update(userID, newUserData["pp"], s.gameMode)				
+				else:
+					newUserData = userUtils.getUserStats(userID, s.gameMode)
+					glob.userStatsCache.update(userID, s.gameMode, newUserData)
+					leaderboardHelper.update(userID, newUserData["pp"], s.gameMode)				
 				
 
 			userUtils.updateLatestActivity(userID)
@@ -348,13 +353,13 @@ class handler(requestsManager.asyncRequestHandler):
 				glob.redis.publish("peppy:update_cached_stats", userID)
 
 				# Get personal best after submitting the score
-				if bool(s.mods & 128) == True:
+				if isRelaxing:
 					newScoreboard = scoreboardRelax.scoreboardRelax(username, s.gameMode, beatmapInfo, False)
 					newScoreboard.setPersonalBestRank()
 					personalBestID = newScoreboard.getPersonalBestID()
 					assert personalBestID is not None
 					currentPersonalBest = scoreRelax.score(personalBestID, newScoreboard.personalBestRank)
-				elif bool(s.mods & 8192) == True:
+				elif isAutoing:
 					newScoreboard = scoreboardAuto.scoreboardAuto(username, s.gameMode, beatmapInfo, False)
 					newScoreboard.setPersonalBestRank()
 					personalBestID = newScoreboard.getPersonalBestID()
@@ -371,7 +376,7 @@ class handler(requestsManager.asyncRequestHandler):
 				# Get rank info (current rank, pp/score to next rank, user who is 1 rank above us)
 				if bool(s.mods & 128):
 					rankInfo = leaderboardHelperRelax.getRankInfo(userID, s.gameMode)
-				elif bool(s.mods & 8192) == True:
+				elif isAutoing:
 					rankInfo = leaderboardHelperAuto.getRankInfo(userID, s.gameMode)				
 				else:
 					rankInfo = leaderboardHelper.getRankInfo(userID, s.gameMode)
@@ -436,7 +441,7 @@ class handler(requestsManager.asyncRequestHandler):
 	
 				# send message to #announce if we're rank #1
 				if newScoreboard.personalBestRank < 101 and s.completed == 3 and restricted == False and beatmapInfo.rankedStatus >= rankedStatuses.RANKED:
-						if bool(s.mods & 128) == True:
+						if isRelaxing:
 							userUtils.logUserLog(" Achieved Relax #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
 							log.warning("{} got a rank #{}".format(username, newScoreboard.personalBestRank))
 							if newScoreboard.personalBestRank < 2:						
@@ -451,7 +456,7 @@ class handler(requestsManager.asyncRequestHandler):
 									userUtils.logUserLogX("has lost Relax first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)		
 								params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": annmsg})
 								requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))							
-						elif bool(s.mods & 8192) == True: 
+						elif isAutoing: 
 							userUtils.logUserLog(" Achieved AutoPilot #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
 							log.warning("{} got a rank #{}".format(username, newScoreboard.personalBestRank))
 							if newScoreboard.personalBestRank < 2:					
@@ -481,9 +486,9 @@ class handler(requestsManager.asyncRequestHandler):
 									userUtils.logUserLogX("has lost first place Vanilla on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode, s.rank)	
 								params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": annmsg})
 								requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))
-				if bool(s.mods & 128) == True:
+				if isRelaxing:
 					server = "Relax"
-				elif bool(s.mods & 8192) == True:
+				elif isAutoing:
 					server = "Auto"
 				else:
 					server = "Vanilla"
