@@ -108,7 +108,7 @@ class scoreboardRelax:
 			country = ""
 
 		# Mods ranking (ignore relax, since we use it for pp sorting)
-		if self.mods > -1 and self.mods & modsEnum.relaxPLAY == 0:
+		if self.mods > -1 and self.mods & modsEnum.AUTOPLAY == 0:
 			mods = "AND scores_relax.mods = %(mods)s"
 		else:
 			mods = ""
@@ -120,10 +120,10 @@ class scoreboardRelax:
 			friends = ""
 
 		# Sort and limit at the end
-		if not self.mods <= -1 or self.mods & modsEnum.relaxPLAY == 0:
-			# Order by score if we aren't filtering by mods or relaxplay mod is disabled
+		if not self.mods <= -1 or self.mods & modsEnum.AUTOPLAY == 0:
+			# Order by score if we aren't filtering by mods or AUTOPLAY mod is disabled
 			order = "ORDER BY pp DESC"
-		elif self.mods & modsEnum.relaxPLAY > 0:
+		elif self.mods & modsEnum.AUTOPLAY > 0:
 			# Otherwise, filter by pp
 			order = "ORDER BY pp DESC"
 		limit = "LIMIT 100"
