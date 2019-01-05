@@ -288,15 +288,16 @@ class beatmap:
 		return -- beatmap header for getscores
 		"""
 
-		if self.rankedStatus >= rankedStatuses.APPROVED:
+		if self.rankedStatus == rankedStatuses.LOVED:
 			rankedStatusOutput = rankedStatuses.APPROVED		
 
 
-		rankedStatusOutput = self.rankedStatus
+		
 		# Fix loved maps for old clients
 		if version < 4 and self.rankedStatus == rankedStatuses.LOVED:
 			rankedStatusOutput = rankedStatuses.QUALIFIED
-			
+		else:
+			rankedStatusOutput = self.rankedStatus
 		data = "{}|false".format(rankedStatusOutput)
 		if self.rankedStatus != rankedStatuses.NOT_SUBMITTED and self.rankedStatus != rankedStatuses.NEED_UPDATE and self.rankedStatus != rankedStatuses.UNKNOWN:
 			# If the beatmap is updated and exists, the client needs more data
