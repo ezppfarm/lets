@@ -439,8 +439,7 @@ class handler(requestsManager.asyncRequestHandler):
 					if newScoreboard.personalBestRank == 1 and oldPersonalBestRank != 1:
 						if bool(s.mods & 128) == True:
 							userUtils.logUserLog(" Achieved Relax #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode)
-							if (newScoreboard.scores == 2):
-								userUtils.logUserLog("has lost Relax first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)						
+							userUtils.logUserLog("has lost Vanilla first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)						
 							annmsg = "[RELAX] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 								userID,
 								username.encode().decode("ASCII", "ignore"),
@@ -450,8 +449,7 @@ class handler(requestsManager.asyncRequestHandler):
 							)
 						elif bool(s.mods & 8192) == True:
 							userUtils.logUserLog(" Achieved AutoPilot #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode)
-							if (newScoreboard.scores == 2):
-								userUtils.logUserLog("has lost AutoPilot first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)						
+							userUtils.logUserLog("has lost Vanilla first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)					
 							annmsg = "[AUTOPILOT] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 								userID,
 								username.encode().decode("ASCII", "ignore"),
@@ -461,8 +459,8 @@ class handler(requestsManager.asyncRequestHandler):
 							)
 						else:
 							userUtils.logUserLog(" Achieved Vanilla #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode)
-							if (newScoreboard.scores == 2):
-								userUtils.logUserLog("has lost Vanilla first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)
+							userUtils.logUserLog("has lost Vanilla first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)
+								
 							annmsg = "[VANILLA] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 								userID,
 								username.encode().decode("ASCII", "ignore"),
