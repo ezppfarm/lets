@@ -226,7 +226,7 @@ class score:
 				self.oldPersonalBest = 0
 			else:
 				b = beatmap.beatmap(self.fileMd5, 0)
-				if b.rankedStatus == rankedStatuses.PENDING or b.rankedStatus == rankedStatuses.LOVED:
+				if b.rankedStatus == rankedStatuses.PENDING:
 					# Compare personal best's score with current score
 					if self.score > personalBest["score"]:
 						# New best score
