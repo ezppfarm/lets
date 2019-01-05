@@ -287,17 +287,16 @@ class beatmap:
 		Return this beatmap's data (header) for getscores
 		return -- beatmap header for getscores
 		"""
+		rankedStatusOutput = self.rankedStatus
+
 
 		if self.rankedStatus == rankedStatuses.LOVED:
-			rankedStatusOutput = rankedStatuses.APPROVED		
+			rankedStatusOutput = rankedStatuses.APPROVED
 
-
-		
 		# Fix loved maps for old clients
 		if version < 4 and self.rankedStatus == rankedStatuses.LOVED:
 			rankedStatusOutput = rankedStatuses.QUALIFIED
-		else:
-			rankedStatusOutput = self.rankedStatus
+
 		data = "{}|false".format(rankedStatusOutput)
 		if self.rankedStatus != rankedStatuses.NOT_SUBMITTED and self.rankedStatus != rankedStatuses.NEED_UPDATE and self.rankedStatus != rankedStatuses.UNKNOWN:
 			# If the beatmap is updated and exists, the client needs more data
@@ -305,7 +304,6 @@ class beatmap:
 
 		# Return the header
 		return data
-
 	def getCachedTillerinoPP(self):
 		"""
 		Returned cached pp values for 100, 99, 98 and 95 acc nomod
