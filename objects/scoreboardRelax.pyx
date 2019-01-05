@@ -99,7 +99,7 @@ class scoreboardRelax:
 
 		# Get top 50 scores
 		select = "SELECT *"
-		joins = "FROM scores STRAIGHT_JOIN users ON scores_relax.userid = users.id STRAIGHT_JOIN users_stats ON users.id = users_stats.id WHERE scores_relax.beatmap_md5 = %(beatmap_md5)s AND scores_relax.play_mode = %(play_mode)s AND scores_relax.completed = 3 AND (users.privileges & 1 > 0 OR users.id = %(userid)s)"
+		joins = "FROM scores_relax STRAIGHT_JOIN users ON scores_relax.userid = users.id STRAIGHT_JOIN users_stats ON users.id = users_stats.id WHERE scores_relax.beatmap_md5 = %(beatmap_md5)s AND scores_relax.play_mode = %(play_mode)s AND scores_relax.completed = 3 AND (users.privileges & 1 > 0 OR users.id = %(userid)s)"
 
 		# Country ranking
 		if self.country:
