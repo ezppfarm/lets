@@ -1,5 +1,5 @@
 import time
-from common.constants import gameModes
+
 from common.log import logUtils as log
 from constants import rankedStatuses
 from helpers import osuapiHelper
@@ -110,11 +110,10 @@ class beatmap:
 				#glob.db.execute("DELETE FROM beatmaps WHERE beatmap_id = %s ",[self.beatmapID])
 				self.rankedStatus = rankedStatuses.NEED_UPDATE
 				pass
-
-
 	def setDataFromDB(self, md5):
 		"""
 		Set this object's beatmap data from db.
+
 		md5 -- beatmap md5
 		return -- True if set, False if not set
 		"""
@@ -150,6 +149,7 @@ class beatmap:
 	def setDataFromDict(self, data):
 		"""
 		Set this object's beatmap data from data dictionary.
+
 		data -- data dictionary
 		return -- True if set, False if not set
 		"""
@@ -175,6 +175,7 @@ class beatmap:
 	def setDataFromOsuApi(self, md5, beatmapSetID):
 		"""
 		Set this object's beatmap data from osu!api.
+
 		md5 -- beatmap md5
 		beatmapSetID -- beatmap set ID, used to check if a map is outdated
 		return -- True if set, False if not set
@@ -225,7 +226,7 @@ class beatmap:
 
 		# We have data from osu!api, set beatmap data
 		log.debug("Got beatmap data from osu!api")
-		self.songName = "{} - {} [{}]".format(mainData["artist"], mainData["title"], mainData["version"])
+		self.songName = "{} - {} [{}]".format(mainData["artist"], mainData["title"], str(mainData["version"]))
 		self.fileMD5 = md5
 		self.rankedStatus = convertRankedStatus(int(mainData["approved"]))
 		self.beatmapID = int(mainData["beatmap_id"])
@@ -258,6 +259,7 @@ class beatmap:
 	def setData(self, md5, beatmapSetID):
 		"""
 		Set this object's beatmap data from highest level possible.
+
 		md5 -- beatmap MD5
 		beatmapSetID -- beatmap set ID
 		"""
@@ -267,7 +269,7 @@ class beatmap:
 		# Force refresh from osu api.
 		# We get data before to keep frozen maps ranked
 		# if they haven't been updated
-		if dbResult and self.refresh:
+		if dbResult == True and self.refresh:
 			dbResult = False
 
 		if not dbResult:
@@ -288,18 +290,14 @@ class beatmap:
 	def getData(self, totalScores=0, version=4):
 		"""
 		Return this beatmap's data (header) for getscores
+
 		return -- beatmap header for getscores
 		"""
-		rankedStatusOutput = self.rankedStatus
-
-		# Force approved for A/Q/L beatmaps that give PP, so we don't get the alert in game
-		if self.rankedStatus >= rankedStatuses.APPROVED and self.is_rankable:
-			rankedStatusOutput = rankedStatuses.APPROVED
-
 		# Fix loved maps for old clients
 		if version < 4 and self.rankedStatus == rankedStatuses.LOVED:
 			rankedStatusOutput = rankedStatuses.QUALIFIED
-
+		else:
+			rankedStatusOutput = self.rankedStatus
 		data = "{}|false".format(rankedStatusOutput)
 		if self.rankedStatus != rankedStatuses.NOT_SUBMITTED and self.rankedStatus != rankedStatuses.NEED_UPDATE and self.rankedStatus != rankedStatuses.UNKNOWN:
 			# If the beatmap is updated and exists, the client needs more data
@@ -312,6 +310,7 @@ class beatmap:
 		"""
 		Returned cached pp values for 100, 99, 98 and 95 acc nomod
 		(used ONLY with Tillerino, pp is always calculated with oppai when submitting scores)
+
 		return -- list with pp values. [0,0,0,0] if not cached.
 		"""
 		data = glob.db.fetch("SELECT pp_100, pp_99, pp_98, pp_95 FROM beatmaps WHERE beatmap_md5 = %s LIMIT 1", [self.fileMD5])
@@ -322,6 +321,7 @@ class beatmap:
 	def saveCachedTillerinoPP(self, l):
 		"""
 		Save cached pp for tillerino
+
 		l -- list with 4 default pp values ([100,99,98,95])
 		"""
 		glob.db.execute("UPDATE beatmaps SET pp_100 = %s, pp_99 = %s, pp_98 = %s, pp_95 = %s WHERE beatmap_md5 = %s", [l[0], l[1], l[2], l[3], self.fileMD5])
@@ -330,28 +330,10 @@ class beatmap:
 	def is_rankable(self):
 		return self.rankedStatus >= rankedStatuses.RANKED and self.rankedStatus != rankedStatuses.UNKNOWN
 
-	@property
-	def is_mode_specific(self):
-		return sum(x > 0 for x in (self.starsStd, self.starsTaiko, self.starsCtb, self.starsMania)) == 1
-
-	@property
-	def specific_game_mode(self):
-		if not self.is_mode_specific:
-			return None
-		try:
-			return next(
-				mode for mode, pp in zip(
-					(gameModes.STD, gameModes.TAIKO, gameModes.CTB, gameModes.MANIA),
-					(self.starsStd, self.starsTaiko, self.starsCtb, self.starsMania)
-				) if pp > 0
-			)
-		except StopIteration:
-			# FUBAR beatmap 🤔
-			return None
-
 def convertRankedStatus(approvedStatus):
 	"""
 	Convert approved_status (from osu!api) to ranked status (for getscores)
+
 	approvedStatus -- approved status, from osu!api
 	return -- rankedStatus for getscores
 	"""
@@ -373,12 +355,10 @@ def convertRankedStatus(approvedStatus):
 def incrementPlaycount(md5, passed):
 	"""
 	Increment playcount (and passcount) for a beatmap
+
 	md5 -- beatmap md5
 	passed -- if True, increment passcount too
 	"""
-	glob.db.execute(
-		f"UPDATE beatmaps "
-		f"SET playcount = playcount+1{', passcount = passcount+1' if passed else ''} "
-		f"WHERE beatmap_md5 = %s LIMIT 1",
-		[md5]
-	)
+	glob.db.execute("UPDATE beatmaps SET playcount = playcount+1 WHERE beatmap_md5 = %s LIMIT 1", [md5])
+	if passed:
+		glob.db.execute("UPDATE beatmaps SET passcount = passcount+1 WHERE beatmap_md5 = %s LIMIT 1", [md5])
