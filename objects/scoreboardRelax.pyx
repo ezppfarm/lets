@@ -73,10 +73,7 @@ class scoreboardRelax:
 		self.scores = []
 		self.scores.append(-1)
 
-		# Make sure the beatmap is ranked
-		if self.beatmap.rankedStatus < rankedStatuses.RANKED or self.beatmap.rankedStatus == rankedStatuses.PENDING:
-			return
-			
+
 		# Query parts
 		cdef str select = ""
 		cdef str joins = ""
