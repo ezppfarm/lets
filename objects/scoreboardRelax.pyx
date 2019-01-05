@@ -91,7 +91,7 @@ class scoreboardRelax:
 
 		# Output our personal best if found
 		if personalBestScoreID is not None:
-			s = score.score(personalBestScoreID)
+			s = scoreRelax.score(personalBestScoreID)
 			self.scores[0] = s
 		else:
 			# No personal best
@@ -139,7 +139,7 @@ class scoreboardRelax:
 		if topScores is not None:
 			for topScore in topScores:
 				# Create score object
-				s = scorerelax.score(topScore["id"], setData=False)
+				s = scoreRelax.score(topScore["id"], setData=False)
 
 				# Set data and rank from topScores's row
 				s.setDataFromDict(topScore)

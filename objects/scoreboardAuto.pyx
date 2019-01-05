@@ -91,7 +91,7 @@ class scoreboardAuto:
 
 		# Output our personal best if found
 		if personalBestScoreID is not None:
-			s = score.score(personalBestScoreID)
+			s = scoreAuto.score(personalBestScoreID)
 			self.scores[0] = s
 		else:
 			# No personal best
