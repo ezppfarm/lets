@@ -346,16 +346,19 @@ class handler(requestsManager.asyncRequestHandler):
 				glob.redis.publish("peppy:update_cached_stats", userID)
 
 				# Get personal best after submitting the score
-				if bool(s.mods & 128) == False:
-					newScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
-				elif bool(s.mods & 8192) == True:
-					scoreboardAuto.scoreboardAuto(username, s.gameMode, beatmapInfo, False)
-				else:
+				if bool(s.mods & 128) == true:
 					newScoreboard = scoreboardRelax.scoreboardRelax(username, s.gameMode, beatmapInfo, False)
-				newScoreboard.setPersonalBestRank()
-				personalBestID = newScoreboard.getPersonalBestID()
-				assert personalBestID is not None
-				currentPersonalBest = score.score(personalBestID, newScoreboard.personalBestRank)
+					newScoreboard.setPersonalBest()
+				elif bool(s.mods & 8192) == True:
+					newScoreboard =  scoreboardAuto.scoreboardAuto(username, s.gameMode, beatmapInfo, False)
+					newScoreboard.setPersonalBest()
+				else:
+					newScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
+					newScoreboard.setPersonalBestRank()
+					personalBestID = newScoreboard.getPersonalBestID()
+					assert personalBestID is not None
+					currentPersonalBest = score.score(personalBestID, newScoreboard.personalBestRank)
+
 
 				# Get rank info (current rank, pp/score to next rank, user who is 1 rank above us)
 				if bool(s.mods & 128):
