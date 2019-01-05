@@ -287,6 +287,11 @@ class beatmap:
 		Return this beatmap's data (header) for getscores
 		return -- beatmap header for getscores
 		"""
+
+		if self.rankedStatus >= rankedStatuses.APPROVED:
+			rankedStatusOutput = rankedStatuses.APPROVED		
+
+
 		rankedStatusOutput = self.rankedStatus
 		# Fix loved maps for old clients
 		if version < 4 and self.rankedStatus == rankedStatuses.LOVED:
