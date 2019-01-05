@@ -107,7 +107,7 @@ class beatmap:
 			except:
 				log.error("who the fuck knows ¯\_(ツ)_/¯ {} id".format(self.beatmapID))
 				#glob.db.execute("DELETE FROM beatmaps WHERE beatmap_id = %s ",[self.beatmapID])
-				self.rankedStatus = rankedStatuses.NEED_UPDATE
+				#self.rankedStatus = rankedStatuses.NEED_UPDATE
 				pass
 	def setDataFromDB(self, md5):
 		"""
