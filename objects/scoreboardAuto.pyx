@@ -1,4 +1,3 @@
-
 from objects import scoreAuto
 from common.ripple import userUtils
 from constants import rankedStatuses
@@ -10,7 +9,6 @@ class scoreboardAuto:
 	def __init__(self, username, gameMode, beatmap, setScores = True, country = False, friends = False, mods = -1):
 		"""
 		Initialize a leaderboard object
-
 		username -- username of who's requesting the scoreboard. None if not known
 		gameMode -- requested gameMode
 		beatmap -- beatmap objecy relative to this leaderboard
@@ -29,14 +27,48 @@ class scoreboardAuto:
 		if setScores:
 			self.setScores()
 
+	@staticmethod
+	def buildQuery(params):
+		return "{select} {joins} {country} {mods} {friends} {order} {limit}".format(**params)
+
+	def getPersonalBestID(self):
+		if self.userID == 0:
+			return None
+
+		# Query parts
+		cdef str select = ""
+		cdef str joins = ""
+		cdef str country = ""
+		cdef str mods = ""
+		cdef str friends = ""
+		cdef str order = ""
+		cdef str limit = ""
+		select = "SELECT id FROM scores WHERE userid = %(userid)s AND beatmap_md5 = %(md5)s AND play_mode = %(mode)s AND completed = 3"
+
+		# Mods
+		if self.mods > -1:
+			mods = "AND mods = %(mods)s"
+
+		# Friends ranking
+		if self.friends:
+			friends = "AND (scores.userid IN (SELECT user2 FROM users_relationships WHERE user1 = %(userid)s) OR scores.userid = %(userid)s)"
+
+		# Sort and limit at the end
+		order = "ORDER BY score DESC"
+		limit = "LIMIT 1"
+
+		# Build query, get params and run query
+		query = self.buildQuery(locals())
+		params = {"userid": self.userID, "md5": self.beatmap.fileMD5, "mode": self.gameMode, "mods": self.mods}
+		id_ = glob.db.fetch(query, params)
+		if id_ is None:
+			return None
+		return id_["id"]
 
 	def setScores(self):
 		"""
 		Set scores list
 		"""
-
-		def buildQuery(params):
-			return "{select} {joins} {country} {mods} {friends} {order} {limit}".format(**params)
 		# Reset score list
 		self.scores = []
 		self.scores.append(-1)
@@ -55,35 +87,11 @@ class scoreboardAuto:
 		cdef str limit = ""
 
 		# Find personal best score
-		if self.userID != 0:
-			# Query parts
-			select = "SELECT id FROM scores_auto WHERE userid = %(userid)s AND beatmap_md5 = %(md5)s AND play_mode = %(mode)s AND completed = 3"
-
-			# Mods
-			if self.mods > -1:
-				mods = "AND mods = %(mods)s"
-
-			# Friends ranking
-			if self.friends:
-				friends = "AND (scores_auto.userid IN (SELECT user2 FROM users_relationships WHERE user1 = %(userid)s) OR scores_auto.userid = %(userid)s)"
-
-			# Sort and limit at the end
-			if (self.mods & 128 > 0):
-				order = "ORDER BY pp DESC"
-			else:
-				order = "ORDER BY score DESC"	
-			limit = "LIMIT 1"
-
-			# Build query, get params and run query
-			query = buildQuery(locals())
-			params = {"userid": self.userID, "md5": self.beatmap.fileMD5, "mode": self.gameMode, "mods": self.mods}
-			personalBestScore = glob.db.fetch(query, params)
-		else:
-			personalBestScore = None
+		personalBestScoreID = self.getPersonalBestID()
 
 		# Output our personal best if found
-		if personalBestScore is not None:
-			s = scoreAuto.score(personalBestScore["id"])
+		if personalBestScoreID is not None:
+			s = score.score(personalBestScoreID)
 			self.scores[0] = s
 		else:
 			# No personal best
@@ -91,7 +99,7 @@ class scoreboardAuto:
 
 		# Get top 50 scores
 		select = "SELECT *"
-		joins = "FROM scores_auto STRAIGHT_JOIN users ON scores_auto.userid = users.id STRAIGHT_JOIN users_stats ON users.id = users_stats.id WHERE scores_auto.beatmap_md5 = %(beatmap_md5)s AND scores_auto.play_mode = %(play_mode)s AND scores_auto.completed = 3 AND (users.privileges & 1 > 0 OR users.id = %(userid)s)"
+		joins = "FROM scores STRAIGHT_JOIN users ON scores.userid = users.id STRAIGHT_JOIN users_stats ON users.id = users_stats.id WHERE scores.beatmap_md5 = %(beatmap_md5)s AND scores.play_mode = %(play_mode)s AND scores.completed = 3 AND (users.privileges & 1 > 0 OR users.id = %(userid)s)"
 
 		# Country ranking
 		if self.country:
@@ -118,13 +126,10 @@ class scoreboardAuto:
 		elif self.mods & modsEnum.AUTOPLAY > 0:
 			# Otherwise, filter by pp
 			order = "ORDER BY pp DESC"
-		if (self.mods & 128 > 0):
-			limit = "LIMIT 100"
-		else:
-			limit = "LIMIT 100"
+		limit = "LIMIT 100"
 
 		# Build query, get params and run query
-		query = buildQuery(locals())
+		query = self.buildQuery(locals())
 		params = {"beatmap_md5": self.beatmap.fileMD5, "play_mode": self.gameMode, "userid": self.userID, "mods": self.mods}
 		topScores = glob.db.fetchAll(query, params)
 
@@ -138,7 +143,7 @@ class scoreboardAuto:
 
 				# Set data and rank from topScores's row
 				s.setDataFromDict(topScore)
-				s.setRank(c)
+				s.rank = c
 
 				# Check if this top 50 score is our personal best
 				if s.playerName == self.username:
@@ -153,9 +158,8 @@ class scoreboardAuto:
 			# Count all scores on this map
 			select = "SELECT COUNT(*) AS count"
 			limit = "LIMIT 1"
-
 			# Build query, get params and run query
-			query = buildQuery(locals())
+			query = self.buildQuery(locals())
 			count = glob.db.fetch(query, params)
 			if count == None:
 				self.totalScores = 0
@@ -165,25 +169,25 @@ class scoreboardAuto:
 			self.totalScores = c-1'''
 
 		# If personal best score was not in top 50, try to get it from cache
-		if personalBestScore is not None and self.personalBestRank < 1:
+		if personalBestScoreID is not None and self.personalBestRank < 1:
 			self.personalBestRank = glob.personalBestCache.get(self.userID, self.beatmap.fileMD5, self.country, self.friends, self.mods)
 
 		# It's not even in cache, get it from db
-		if personalBestScore is not None and self.personalBestRank < 1:
-			self.setPersonalBest()
+		if personalBestScoreID is not None and self.personalBestRank < 1:
+			self.setPersonalBestRank()
 
 		# Cache our personal best rank so we can eventually use it later as
 		# before personal best rank" in submit modular when building ranking panel
 		if self.personalBestRank >= 1:
 			glob.personalBestCache.set(self.userID, self.personalBestRank, self.beatmap.fileMD5)
 
-	def setPersonalBest(self):
+	def setPersonalBestRank(self):
 		"""
 		Set personal best rank ONLY
 		Ikr, that query is HUGE but xd
 		"""
 		# Before running the HUGE query, make sure we have a score on that map
-		cdef str query = "SELECT id FROM scores_auto WHERE beatmap_md5 = %(md5)s AND userid = %(userid)s AND play_mode = %(mode)s AND completed = 3"
+		cdef str query = "SELECT id FROM scores_auto WHERE beatmap_md5 = %(md5)s AND userid = %(userid)s AND play_mode = %(mode)s AND completed = 3"		
 		# Mods
 		if self.mods > -1:
 			query += " AND scores_auto.mods = %(mods)s"
@@ -195,9 +199,9 @@ class scoreboardAuto:
 		hasScore = glob.db.fetch(query, {"md5": self.beatmap.fileMD5, "userid": self.userID, "mode": self.gameMode, "mods": self.mods})
 		if hasScore is None:
 			return
-
-		overwrite = "pp"
 		
+		
+		overwrite = "pp"
 		# We have a score, run the huge query
 		# Base query
 		query = """SELECT COUNT(*) AS rank FROM scores_auto STRAIGHT_JOIN users ON scores_auto.userid = users.id STRAIGHT_JOIN users_stats ON users.id = users_stats.id WHERE scores_auto.{0} >= (
@@ -213,7 +217,7 @@ class scoreboardAuto:
 		if self.friends:
 			query += " AND (scores_auto.userid IN (SELECT user2 FROM users_relationships WHERE user1 = %(userid)s) OR scores_auto.userid = %(userid)s)"
 		# Sort and limit at the end
-		query += " ORDER BY {} DESC LIMIT 1".format(overwrite)
+		query += " ORDER BY pp DESC LIMIT 1".format(overwrite)
 		result = glob.db.fetch(query, {"md5": self.beatmap.fileMD5, "userid": self.userID, "mode": self.gameMode, "mods": self.mods})
 		if result is not None:
 			self.personalBestRank = result["rank"]
@@ -221,7 +225,6 @@ class scoreboardAuto:
 	def getScoresData(self):
 		"""
 		Return scores data for getscores
-
 		return -- score data in getscores format
 		"""
 		data = ""
@@ -232,11 +235,12 @@ class scoreboardAuto:
 			data += "\n"
 		else:
 			# Set personal best score rank
-			self.setPersonalBest()	# sets self.personalBestRank with the huge query
-			self.scores[0].setRank(self.personalBestRank)
+			self.setPersonalBestRank()	# sets self.personalBestRank with the huge query
+			self.scores[0].rank = self.personalBestRank
 			data += self.scores[0].getData(pp=True)
 
 		# Output top 50 scores
 		for i in self.scores[1:]:
 			data += i.getData(pp=True)
+
 		return data

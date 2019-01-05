@@ -348,10 +348,16 @@ class handler(requestsManager.asyncRequestHandler):
 				# Get personal best after submitting the score
 				if bool(s.mods & 128) == True:
 					newScoreboard = scoreboardRelax.scoreboardRelax(username, s.gameMode, beatmapInfo, False)
-					newScoreboard.setPersonalBest()
+					newScoreboard.setPersonalBestRank()
+					personalBestID = newScoreboard.getPersonalBestID()
+					assert personalBestID is not None
+					currentPersonalBest = scoreRelax.score(personalBestID, newScoreboard.personalBestRank)
 				elif bool(s.mods & 8192) == True:
 					newScoreboard = scoreboardAuto.scoreboardAuto(username, s.gameMode, beatmapInfo, False)
-					newScoreboard.setPersonalBest()
+					newScoreboard.setPersonalBestRank()
+					personalBestID = newScoreboard.getPersonalBestID()
+					assert personalBestID is not None
+					currentPersonalBest = scoreAuto.score(personalBestID, newScoreboard.personalBestRank)
 				else:
 					newScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
 					newScoreboard.setPersonalBestRank()
@@ -430,9 +436,9 @@ class handler(requestsManager.asyncRequestHandler):
 				if newScoreboard.personalBestRank == 1 and s.completed == 3 and restricted == False:
 					if newScoreboard.personalBestRank == 1 and oldPersonalBestRank != 1:
 						if bool(s.mods & 128) == True:
-							#userUtils.logUserLog(" Achieved Relax #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode)
-							#if (len(newScoreboard.scores) > 2):
-								#userUtils.logUserLog("has lost Relax first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)						
+							userUtils.logUserLog(" Achieved Relax #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode)
+							if (len(newScoreboard.scores) > 2):
+								userUtils.logUserLog("has lost Relax first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)						
 							annmsg = "[RELAX] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 								userID,
 								username.encode().decode("ASCII", "ignore"),
@@ -441,9 +447,9 @@ class handler(requestsManager.asyncRequestHandler):
 								gameModes.getGamemodeFull(s.gameMode)
 							)
 						elif bool(s.mods & 8192) == True:
-							#userUtils.logUserLog(" Achieved AutoPilot #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode)
-							#if (len(newScoreboard.scores) > 2):
-								#userUtils.logUserLog("has lost AutoPilot first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)						
+							userUtils.logUserLog(" Achieved AutoPilot #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode)
+							if (len(newScoreboard.scores) > 2):
+								userUtils.logUserLog("has lost AutoPilot first place on ",s.fileMd5, newScoreboard.scores[2].playerUserID, s.gameMode)						
 							annmsg = "[AUTOPILOT] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 								userID,
 								username.encode().decode("ASCII", "ignore"),
