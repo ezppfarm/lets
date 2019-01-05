@@ -445,7 +445,7 @@ class handler(requestsManager.asyncRequestHandler):
 									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
 									gameModes.getGamemodeFull(s.gameMode)
 								)
-						userLogMsg = " Achieved Unranked Relax #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
+						userLogMsg = " Achieved Unranked Relax #{} rank on ".format(newScoreboard.personalBestRank)
 					else:
 						announceMsg = "[RELAX] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 									userID,
@@ -454,7 +454,7 @@ class handler(requestsManager.asyncRequestHandler):
 									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
 									gameModes.getGamemodeFull(s.gameMode)
 								)
-						userLogMsg = " Achieved Relax #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
+						userLogMsg = " Achieved Relax #{} rank on ".format(newScoreboard.personalBestRank)
 				elif isAutoing:
 					if beatmapInfo.rankedStatus == rankedStatuses.PENDING:
 						announceMsg = "[AUTOPILOT] {UNRANKED} [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
@@ -473,7 +473,7 @@ class handler(requestsManager.asyncRequestHandler):
 									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
 									gameModes.getGamemodeFull(s.gameMode)
 								)
-						userLogMsg = " Achieved Autopilot #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
+						userLogMsg = " Achieved Autopilot #{} rank on ".format(newScoreboard.personalBestRank)
 				else:
 					if beatmapInfo.rankedStatus == rankedStatuses.PENDING:
 						announceMsg = "[VANILLA] {UNRANKED} [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
@@ -483,7 +483,7 @@ class handler(requestsManager.asyncRequestHandler):
 									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
 									gameModes.getGamemodeFull(s.gameMode)
 								)
-						userLogMsg = " Achieved Unranked Vanilla #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
+						userLogMsg = " Achieved Unranked Vanilla #{} rank on ".format(newScoreboard.personalBestRank)
 					else:
 						announceMsg = "[VANILLA] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
 									userID,
@@ -492,12 +492,12 @@ class handler(requestsManager.asyncRequestHandler):
 									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
 									gameModes.getGamemodeFull(s.gameMode)
 								)
-						userLogMsg = " Achieved Vanilla #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
+						userLogMsg = " Achieved Vanilla #{} rank on ".format(newScoreboard.personalBestRank)
 					
 	
 				# send message to #announce if we're rank #1
 				if newScoreboard.personalBestRank < 101 and s.completed == 3 and restricted == False and beatmapInfo.rankedStatus >= rankedStatuses.PENDING:
-						userUtils.logUserLog(userLogMsg)
+						userUtils.logUserLog(userLogMsg, s.fileMd5, userID, s.gameMode, s.scoreID))
 						log.warning("{} got a rank #{}".format(username, newScoreboard.personalBestRank))
 						if newScoreboard.personalBestRank < 2:	
 								#log.info(newScoreboard.scores) #
