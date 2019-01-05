@@ -25,7 +25,6 @@ class score:
 	def __init__(self, scoreID = None, rank = None, setData = True):
 		"""
 		Initialize a (empty) score object.
-
 		scoreID -- score ID, used to get score data from db. Optional.
 		rank -- score rank. Optional
 		setData -- if True, set score data from db using scoreID. Optional.
@@ -60,11 +59,8 @@ class score:
 		self.oldPersonalBest = 0
 		self.rankedScoreIncrease = 0
 
-		if scoreID is not None and setData == True and bool(self.mods & 128) == False:
+		if scoreID is not None and setData == True:
 			self.setDataFromDB(scoreID, rank)
-		elif scoreID is not None and setData == True and bool(self.mods & 128) == True:
-			self.setDataFromRelaxDB(scoreID, rank)
-
 
 	def calculateAccuracy(self):
 		"""
@@ -106,7 +102,6 @@ class score:
 	def setRank(self, rank):
 		"""
 		Force a score rank
-
 		rank -- new score rank
 		"""
 		self.rank = rank
@@ -115,7 +110,6 @@ class score:
 		"""
 		Set this object's score data from db
 		Sets playerUserID too
-
 		scoreID -- score ID
 		rank -- rank in scoreboard. Optional.
 		"""
@@ -123,30 +117,17 @@ class score:
 		if data is not None:
 			self.setDataFromDict(data, rank)
 
-	def setDataFromRelaxDB(self, scoreID, rank = None):
-		"""
-		Set this object's score data from db
-		Sets playerUserID too
-
-		scoreID -- score ID
-		rank -- rank in scoreboard. Optional.
-		"""
-		data = glob.db.fetch("SELECT scores_relax.*, users.username FROM scores LEFT JOIN users ON users.id = scores.userid WHERE scores.id = %s LIMIT 1", [scoreID])
-		if data is not None:
-			self.setDataFromDict(data, rank)
-
 	def setDataFromDict(self, data, rank = None):
 		"""
 		Set this object's score data from dictionary
 		Doesn't set playerUserID
-
 		data -- score dictionarty
 		rank -- rank in scoreboard. Optional.
 		"""
 		#print(str(data))
 		self.scoreID = data["id"]
 		if "username" in data:
-			self.playerName = data["username"]
+			self.playerName = userUtils.getClan(data["userid"])
 		else:
 			self.playerName = userUtils.getUsername(data["userid"])
 		self.playerUserID = data["userid"]
@@ -172,7 +153,6 @@ class score:
 	def setDataFromScoreData(self, scoreData):
 		"""
 		Set this object's score data from scoreData list (submit modular)
-
 		scoreData -- scoreData list
 		"""
 		if len(scoreData) >= 16:
@@ -198,10 +178,8 @@ class score:
 			#osuVersion = scoreData[17]
 
 			# Set completed status
-			if bool(self.mods & 128):
-				self.setCompletedStatusRelax()
-			else:
-				self.setCompletedStatus()
+			self.setCompletedStatus()
+
 
 	def getData(self, pp=False):
 		"""Return score row relative to this score for getscores"""
@@ -232,7 +210,6 @@ class score:
 			userID = userUtils.getID(self.playerName)
 
 			# Make sure we don't have another score identical to this one
-			# TODO: time check
 			duplicate = glob.db.fetch("SELECT id FROM scores WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND score = %s LIMIT 1", [userID, self.fileMd5, self.gameMode, self.score])
 			if duplicate is not None:
 				# Found same score in db. Don't save this score.
@@ -241,58 +218,15 @@ class score:
 
 			# No duplicates found.
 			# Get right "completed" value
-			personalBest = glob.db.fetch("SELECT id, pp, score FROM scores WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND completed = 3 LIMIT 1", [userID, self.fileMd5, self.gameMode])
+			personalBest = glob.db.fetch("SELECT id, score FROM scores WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND completed = 3 LIMIT 1", [userID, self.fileMd5, self.gameMode])
 			if personalBest is None:
 				# This is our first score on this map, so it's our best score
 				self.completed = 3
 				self.rankedScoreIncrease = self.score
 				self.oldPersonalBest = 0
 			else:
-				self.completed = 3
-				self.calculatePP()
 				# Compare personal best's score with current score
-				if self.pp > personalBest["pp"]:
-					# New best score
-					self.completed = 3
-					self.rankedScoreIncrease = self.score-personalBest["score"]
-					self.oldPersonalBest = personalBest["id"]
-				else:
-					self.completed = 2
-					self.rankedScoreIncrease = 0
-					self.oldPersonalBest = 0
-
-		log.debug("Completed status: {}".format(self.completed))
-
-	def setCompletedStatusRelax(self):
-		"""
-		Set this score completed status and rankedScoreIncrease
-		"""
-		self.completed = 0
-		if self.passed == True and scoreUtils.isRankable(self.mods):
-			# Get userID
-			userID = userUtils.getID(self.playerName)
-
-			# Make sure we don't have another score identical to this one
-			# TODO: time check
-			duplicate = glob.db.fetch("SELECT id FROM scores_relax WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND score = %s LIMIT 1", [userID, self.fileMd5, self.gameMode, self.score])
-			if duplicate is not None:
-				# Found same score in db. Don't save this score.
-				self.completed = -1
-				return
-
-			# No duplicates found.
-			# Get right "completed" value
-			personalBest = glob.db.fetch("SELECT id, score, pp FROM scores_relax WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND completed = 3 LIMIT 1", [userID, self.fileMd5, self.gameMode])
-			if personalBest is None:
-				# This is our first score on this map, so it's our best score
-				self.completed = 3
-				self.rankedScoreIncrease = self.score
-				self.oldPersonalBest = 0
-			else:
-				self.completed = 3
-				self.calculatePP()
-				# Compare personal best's score with current score
-				if self.pp > personalBest["pp"]:
+				if self.score > personalBest["score"]:
 					# New best score
 					self.completed = 3
 					self.rankedScoreIncrease = self.score-personalBest["score"]
@@ -316,19 +250,6 @@ class score:
 			# Set old personal best to completed = 2
 			if self.oldPersonalBest != 0:
 				glob.db.execute("UPDATE scores SET completed = 2 WHERE id = %s", [self.oldPersonalBest])
-
-	def saveRelaxScoreInDB(self):
-		"""
-		Save this score in DB (if passed and mods are valid)
-		"""
-		# Add this score
-		if self.completed >= 2:
-			query = "INSERT INTO scores_relax (id, beatmap_md5, userid, score, max_combo, full_combo, mods, 300_count, 100_count, 50_count, katus_count, gekis_count, misses_count, time, play_mode, completed, accuracy, pp) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-			self.scoreID = int(glob.db.execute(query, [self.fileMd5, userUtils.getID(self.playerName), self.score, self.maxCombo, 1 if self.fullCombo == True else 0, self.mods, self.c300, self.c100, self.c50, self.cKatu, self.cGeki, self.cMiss, self.playDateTime, self.gameMode, self.completed, self.accuracy * 100, self.pp]))
-
-			# Set old personal best to completed = 2
-			if self.oldPersonalBest != 0:
-				glob.db.execute("UPDATE scores_relax SET completed = 2 WHERE id = %s", [self.oldPersonalBest])
 
 	def calculatePP(self, b = None):
 		"""
