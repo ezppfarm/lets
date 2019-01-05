@@ -218,7 +218,7 @@ class score:
 
 			# No duplicates found.
 			# Get right "completed" value
-			personalBest = glob.db.fetch("SELECT id, pp score FROM scores WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND completed = 3 LIMIT 1", [userID, self.fileMd5, self.gameMode])
+			personalBest = glob.db.fetch("SELECT id, pp, score FROM scores WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND completed = 3 LIMIT 1", [userID, self.fileMd5, self.gameMode])
 			if personalBest is None:
 				# This is our first score on this map, so it's our best score
 				self.completed = 3
