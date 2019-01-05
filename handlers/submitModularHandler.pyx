@@ -333,7 +333,7 @@ class handler(requestsManager.asyncRequestHandler):
 
 			# Score has been submitted, do not retry sending the score if
 			# there are exceptions while building the ranking panel
-			keepSending = False
+			keepSending = True
 
 			# At the end, check achievements
 			if s.passed:
