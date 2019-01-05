@@ -497,7 +497,7 @@ class handler(requestsManager.asyncRequestHandler):
 	
 				# send message to #announce if we're rank #1
 				if newScoreboard.personalBestRank < 101 and s.completed == 3 and restricted == False and beatmapInfo.rankedStatus >= rankedStatuses.PENDING:
-						userUtils.logUserLog(userLogMsg, s.fileMd5, userID, s.gameMode, s.scoreID))
+						userUtils.logUserLog(userLogMsg, s.fileMd5, userID, s.gameMode, s.scoreID)
 						log.warning("{} got a rank #{}".format(username, newScoreboard.personalBestRank))
 						if newScoreboard.personalBestRank < 2:	
 								#log.info(newScoreboard.scores) #
