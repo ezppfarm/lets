@@ -189,15 +189,17 @@ class handler(requestsManager.asyncRequestHandler):
 				if bool(s.mods & 128) == True:
 					oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
 					if oldPersonalBestRank == 0:
-						oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
-						oldScoreboard.setPersonalBest()
-						oldPersonalBestRank = oldScoreboard.personalBestRank if oldScoreboard.personalBestRank > 0 else 0	
+						oldScoreboard = scoreboardRelax.scoreboardRelax(username, s.gameMode, beatmapInfo, False)
+						oldScoreboard.setPersonalBestRank()
+						oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
+					oldPersonalBest = scoreRelax.score(s.oldPersonalBest, oldPersonalBestRank)
 				elif bool(s.mods & 8192) == True:
 					oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
 					if oldPersonalBestRank == 0:
-						oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
-						oldScoreboard.setPersonalBest()
-						oldPersonalBestRank = oldScoreboard.personalBestRank if oldScoreboard.personalBestRank > 0 else 0
+						oldScoreboard = scoreboardAuto.scoreboardAuto(username, s.gameMode, beatmapInfo, False)
+						oldScoreboard.setPersonalBestRank()
+						oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
+					oldPersonalBest = scoreAuto.score(s.oldPersonalBest, oldPersonalBestRank)
 				else:
 					oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
 					if oldPersonalBestRank == 0:
@@ -473,8 +475,10 @@ class handler(requestsManager.asyncRequestHandler):
 					requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))
 				if bool(s.mods & 128) == True:
 					server = "Relax"
+				elif bool(s.mods & 8192) == True:
+					server = "Auto"
 				else:
-					server = "Regular"
+					server = "Vanilla"
 
 				ppGained = newUserData["pp"] - oldUserData["pp"]
 				gainedRanks = oldRank - rankInfo["currentRank"]
