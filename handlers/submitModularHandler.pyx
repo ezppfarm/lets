@@ -436,55 +436,73 @@ class handler(requestsManager.asyncRequestHandler):
 
 				log.debug("Generated output for online ranking screen!")
 				log.debug(output)
-
-
+				if isRelaxing:
+					if beatmapInfo.rankedStatus == rankedStatuses.PENDING:
+						announceMsg = "[RELAX] {UNRANKED} [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
+									userID,
+									username.encode().decode("ASCII", "ignore"),
+									beatmapInfo.beatmapID,
+									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
+									gameModes.getGamemodeFull(s.gameMode)
+								)
+						userLogMsg = " Achieved Unranked Relax #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
+					else:
+						announceMsg = "[RELAX] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
+									userID,
+									username.encode().decode("ASCII", "ignore"),
+									beatmapInfo.beatmapID,
+									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
+									gameModes.getGamemodeFull(s.gameMode)
+								)
+						userLogMsg = " Achieved Relax #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
+				elif isAutoing:
+					if beatmapInfo.rankedStatus == rankedStatuses.PENDING:
+						announceMsg = "[AUTOPILOT] {UNRANKED} [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
+									userID,
+									username.encode().decode("ASCII", "ignore"),
+									beatmapInfo.beatmapID,
+									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
+									gameModes.getGamemodeFull(s.gameMode)
+								)
+						userLogMsg = " Achieved Unranked Autopilot #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
+					else:
+						announceMsg = "[AUTOPILOT] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
+									userID,
+									username.encode().decode("ASCII", "ignore"),
+									beatmapInfo.beatmapID,
+									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
+									gameModes.getGamemodeFull(s.gameMode)
+								)
+						userLogMsg = " Achieved Autopilot #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
+				else:
+					if beatmapInfo.rankedStatus == rankedStatuses.PENDING:
+						announceMsg = "[VANILLA] {UNRANKED} [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
+									userID,
+									username.encode().decode("ASCII", "ignore"),
+									beatmapInfo.beatmapID,
+									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
+									gameModes.getGamemodeFull(s.gameMode)
+								)
+						userLogMsg = " Achieved Unranked Vanilla #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
+					else:
+						announceMsg = "[VANILLA] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
+									userID,
+									username.encode().decode("ASCII", "ignore"),
+									beatmapInfo.beatmapID,
+									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
+									gameModes.getGamemodeFull(s.gameMode)
+								)
+						userLogMsg = " Achieved Vanilla #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
+					
 	
 				# send message to #announce if we're rank #1
 				if newScoreboard.personalBestRank < 101 and s.completed == 3 and restricted == False and beatmapInfo.rankedStatus >= rankedStatuses.PENDING:
-						if isRelaxing:
-							userUtils.logUserLog(" Achieved Relax #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
-							log.warning("{} got a rank #{}".format(username, newScoreboard.personalBestRank))
-							if newScoreboard.personalBestRank < 2:						
-								annmsg = "[RELAX] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
-									userID,
-									username.encode().decode("ASCII", "ignore"),
-									beatmapInfo.beatmapID,
-									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
-									gameModes.getGamemodeFull(s.gameMode)
-								)
-								if (len(newScoreboard.scores) > 2):
-									userUtils.logUserLogX("has lost Relax first place on ",s.fileMd5, newScoreboard.scores[1].playerUserID, s.gameMode)		
-								params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": annmsg})
-								requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))							
-						elif isAutoing: 
-							userUtils.logUserLog(" Achieved AutoPilot #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
-							log.warning("{} got a rank #{}".format(username, newScoreboard.personalBestRank))
-							if newScoreboard.personalBestRank < 2:					
-								annmsg = "[AUTOPILOT] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
-									userID,
-									username.encode().decode("ASCII", "ignore"),
-									beatmapInfo.beatmapID,
-									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
-									gameModes.getGamemodeFull(s.gameMode)
-								)
-								if (len(newScoreboard.scores) > 2):
-									userUtils.logUserLogX("has lost AutoPilot first place on ",s.fileMd5, newScoreboard.scores[1].playerUserID, s.gameMode)
-								params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": annmsg})
-								requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))
-						else:
-							userUtils.logUserLog(" Achieved Vanilla #{} rank on ".format(newScoreboard.personalBestRank),s.fileMd5, userID, s.gameMode, s.scoreID)
-							log.warning("{} got a rank #{}".format(username, newScoreboard.personalBestRank))
-							if newScoreboard.personalBestRank < 2:	
-								annmsg = "[VANILLA] [https://yozora.pw/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
-									userID,
-									username.encode().decode("ASCII", "ignore"),
-									beatmapInfo.beatmapID,
-									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
-									gameModes.getGamemodeFull(s.gameMode)
-								)
+						userUtils.logUserLog(userLogMsg)
+						log.warning("{} got a rank #{}".format(username, newScoreboard.personalBestRank))
+						if newScoreboard.personalBestRank < 2:	
 								#log.info(newScoreboard.scores) #
 								#userUtils.logUserLogX("has lost first place Vanilla on ",s.fileMd5, newScoreboard.scores[1].playerUserID, s.gameMode, s.rank)	
-								params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": annmsg})
+								params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": announceMsg})
 								requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))
 				if isRelaxing:
 					server = "Relax"
