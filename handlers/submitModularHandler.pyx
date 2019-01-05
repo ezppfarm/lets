@@ -288,7 +288,7 @@ class handler(requestsManager.asyncRequestHandler):
 							username, userID, s.fileMd5
 						), "cm")
 
-			#beatmap.incrementPlaycount(s.fileMd5, s.passed)
+			beatmap.incrementPlaycount(s.fileMd5, s.passed)
 
 			if s.scoreID:
 				glob.redis.publish("api:score_submission", s.scoreID)
