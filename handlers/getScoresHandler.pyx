@@ -96,7 +96,7 @@ class handler(requestsManager.asyncRequestHandler):
 			bmap = beatmap.beatmap(md5, beatmapSetID, gameMode)
 			b = beatmap.beatmap(md5, 0)
 			b.rankedStatus != rankedStatuses.PENDING
-			if b.rankedStatus != rankedStatuses.PENDING:
+			if b.rankedStatus == rankedStatuses.PENDING:
 				sboard = scoreboard.scoreboard(
 					username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
 					)
