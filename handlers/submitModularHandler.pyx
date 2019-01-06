@@ -127,7 +127,7 @@ class handler(requestsManager.asyncRequestHandler):
 				s = scoreAuto.score()
 			else:
 				s = score.score()
-
+			log.info("{} getting passed {}...".format(username, scoreData[0]))
 			s.setDataFromScoreData(scoreData)
 			s.playerUserID = userID
 			if s.completed == -1:

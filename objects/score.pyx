@@ -218,23 +218,39 @@ class score:
 
 			# No duplicates found.
 			# Get right "completed" value
-			personalBest = glob.db.fetch("SELECT id, score, pp FROM scores WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND completed = 3 LIMIT 1", [userID, self.fileMd5, self.gameMode])
+			personalBest = glob.db.fetch("SELECT id, pp, score FROM scores WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND completed = 3 LIMIT 1", [userID, self.fileMd5, self.gameMode])
 			if personalBest is None:
 				# This is our first score on this map, so it's our best score
 				self.completed = 3
 				self.rankedScoreIncrease = self.score
 				self.oldPersonalBest = 0
 			else:
-				# Compare personal best's score with current score
-				if self.pp > personalBest["pp"]:
-					# New best score
+				b = beatmap.beatmap(self.fileMd5, 0)
+				if b.rankedStatus == rankedStatuses.PENDING:
+					# Compare personal best's score with current score
+					if self.score > personalBest["score"]:
+						# New best score
+						self.completed = 3
+						self.rankedScoreIncrease = self.score-personalBest["score"]
+						self.oldPersonalBest = personalBest["id"]
+					else:
+						self.completed = 2
+						self.rankedScoreIncrease = 0
+						self.oldPersonalBest = 0
 					self.completed = 3
-					self.rankedScoreIncrease = self.score-personalBest["score"]
-					self.oldPersonalBest = personalBest["id"]
 				else:
-					self.completed = 2
-					self.rankedScoreIncrease = 0
-					self.oldPersonalBest = 0
+					self.completed = 3
+					self.calculatePP()
+					# Compare personal best's score with current score
+					if self.pp > personalBest["pp"]:
+						# New best score
+						self.completed = 3
+						self.rankedScoreIncrease = self.score-personalBest["score"]
+						self.oldPersonalBest = personalBest["id"]
+					else:
+						self.completed = 2
+						self.rankedScoreIncrease = 0
+						self.oldPersonalBest = 0
 
 		log.debug("Completed status: {}".format(self.completed))
 
@@ -260,7 +276,7 @@ class score:
 			b = beatmap.beatmap(self.fileMd5, 0)
 
 		# Calculate pp
-		if b.rankedStatus >= rankedStatuses.RANKED and b.rankedStatus != rankedStatuses.UNKNOWN \
+		if b.rankedStatus >= rankedStatuses.RANKED and b.rankedStatus and b.rankedStatus != rankedStatuses.PENDING and b.rankedStatus != rankedStatuses.UNKNOWN \
 			and scoreUtils.isRankable(self.mods) and self.passed and self.gameMode in score.PP_CALCULATORS:
 			calculator = score.PP_CALCULATORS[self.gameMode](b, self)
 			self.pp = calculator.pp
