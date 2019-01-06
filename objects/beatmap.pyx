@@ -216,7 +216,7 @@ class beatmap:
 				return False
 			else:
 				# We have some data, but md5 doesn't match. Beatmap is outdated
-				#self.rankedStatus = rankedStatuses.NEED_UPDATE
+				self.rankedStatus = rankedStatuses.NEED_UPDATE
 				return True
 
 
