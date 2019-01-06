@@ -33,6 +33,8 @@ from objects import scoreboard
 from objects import scoreRelax
 from objects import scoreboardRelax
 from objects import scoreboardAuto
+from objects import scoreboardRelaxScore
+from objects import scoreboardAutoScore
 from objects import scoreAuto
 from objects.charts import BeatmapChart, OverallChart
 from secret import butterCake
