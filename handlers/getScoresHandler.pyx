@@ -5,7 +5,9 @@ import tornado.web
 from objects import beatmap
 from objects import scoreboard
 from objects import scoreboardRelax
+from objects import scoreboardRelaxScore
 from objects import scoreboardAuto
+from objects import scoreboardAutoScore
 from common.constants import privileges
 from constants import rankedStatuses
 from common.log import logUtils as log
@@ -97,7 +99,16 @@ class handler(requestsManager.asyncRequestHandler):
 			b = beatmap.beatmap(md5, 0)
 			b.rankedStatus != rankedStatuses.PENDING
 			if b.rankedStatus == rankedStatuses.PENDING:
-				sboard = scoreboard.scoreboard(
+				if bool(mods & 128):
+					sboard = scoreboardRelaxScore.scoreboardRelax(
+					username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
+					)
+				elif bool(mods & 8192):
+					sboard = scoreboardAutoScore.scoreboardAuto(
+					username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
+					)
+				else:
+					sboard = scoreboard.scoreboard(
 					username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
 					)
 			else:
