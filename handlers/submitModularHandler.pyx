@@ -129,6 +129,7 @@ class handler(requestsManager.asyncRequestHandler):
 				s = score.score()
 			log.info("{} getting passed {}...".format(username, scoreData[0]))
 			s.setDataFromScoreData(scoreData)
+			log.info("{} getting passed scoredata {}...".format(username, scoreData[0]))
 			s.playerUserID = userID
 			if s.completed == -1:
 				log.warning("We got a dulicated score.")
@@ -139,8 +140,9 @@ class handler(requestsManager.asyncRequestHandler):
 
 			
 			beatmapInfo = beatmap.beatmap()
+			log.info("{} getting passed before beatmapdata{}...".format(username, scoreData[0]))
 			beatmapInfo.setDataFromDB(s.fileMd5)
-
+			log.info("{} getting passed beatmapdata{}...".format(username, scoreData[0]))
 			
 			if beatmapInfo.rankedStatus == rankedStatuses.NOT_SUBMITTED or beatmapInfo.rankedStatus == rankedStatuses.NEED_UPDATE or beatmapInfo.rankedStatus == rankedStatuses.UNKNOWN:
 				log.debug("Beatmap is not submitted/outdated/unknown. Score submission aborted.")
