@@ -192,7 +192,7 @@ class handler(requestsManager.asyncRequestHandler):
 				log.warning("**{}** ({}) has been restricted due to notepad hack".format(username, userID), "cm")
 				return
 			
-			b = beatmap.beatmap(md5, 0)
+			b = beatmap.beatmap(s.fileMd5, 0)
 			if b.rankedStatus == rankedStatuses.PENDING:
 				# Right before submitting the score, get the personal best score object (we need it for charts)
 				if s.passed and s.oldPersonalBest > 0:
