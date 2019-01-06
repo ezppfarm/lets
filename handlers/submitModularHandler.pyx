@@ -190,33 +190,61 @@ class handler(requestsManager.asyncRequestHandler):
 				log.warning("**{}** ({}) has been restricted due to notepad hack".format(username, userID), "cm")
 				return
 			
-			
-			# Right before submitting the score, get the personal best score object (we need it for charts)
-			if s.passed and s.oldPersonalBest > 0:
-				if UsingRelax:
-					oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
-					if oldPersonalBestRank == 0:
-						oldScoreboard = scoreboardRelax.scoreboardRelax(username, s.gameMode, beatmapInfo, False)
-						oldScoreboard.setPersonalBestRank()
-						oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
-					oldPersonalBest = scoreRelax.score(s.oldPersonalBest, oldPersonalBestRank)
-				elif UsingAuto:
-					oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
-					if oldPersonalBestRank == 0:
-						oldScoreboard = scoreboardAuto.scoreboardAuto(username, s.gameMode, beatmapInfo, False)
-						oldScoreboard.setPersonalBestRank()
-						oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
-					oldPersonalBest = scoreAuto.score(s.oldPersonalBest, oldPersonalBestRank)
+			b = beatmap.beatmap(md5, 0)
+			if b.rankedStatus == rankedStatuses.PENDING:
+				# Right before submitting the score, get the personal best score object (we need it for charts)
+				if s.passed and s.oldPersonalBest > 0:
+					if UsingRelax:
+						oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
+						if oldPersonalBestRank == 0:
+							oldScoreboard = scoreboardRelaxScore.scoreboardRelax(username, s.gameMode, beatmapInfo, False)
+							oldScoreboard.setPersonalBestRank()
+							oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
+						oldPersonalBest = scoreRelax.score(s.oldPersonalBest, oldPersonalBestRank)
+					elif UsingAuto:
+						oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
+						if oldPersonalBestRank == 0:
+							oldScoreboard = scoreboardAutoScore.scoreboardAuto(username, s.gameMode, beatmapInfo, False)
+							oldScoreboard.setPersonalBestRank()
+							oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
+						oldPersonalBest = scoreAuto.score(s.oldPersonalBest, oldPersonalBestRank)
+					else:
+						oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
+						if oldPersonalBestRank == 0:
+							oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
+							oldScoreboard.setPersonalBestRank()
+							oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
+						oldPersonalBest = score.score(s.oldPersonalBest, oldPersonalBestRank)
 				else:
-					oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
-					if oldPersonalBestRank == 0:
-						oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
-						oldScoreboard.setPersonalBestRank()
-						oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
-					oldPersonalBest = score.score(s.oldPersonalBest, oldPersonalBestRank)
+					oldPersonalBestRank = 0
+					oldPersonalBest = None
 			else:
-				oldPersonalBestRank = 0
-				oldPersonalBest = None
+				# Right before submitting the score, get the personal best score object (we need it for charts)
+				if s.passed and s.oldPersonalBest > 0:
+					if UsingRelax:
+						oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
+						if oldPersonalBestRank == 0:
+							oldScoreboard = scoreboardRelax.scoreboardRelax(username, s.gameMode, beatmapInfo, False)
+							oldScoreboard.setPersonalBestRank()
+							oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
+						oldPersonalBest = scoreRelax.score(s.oldPersonalBest, oldPersonalBestRank)
+					elif UsingAuto:
+						oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
+						if oldPersonalBestRank == 0:
+							oldScoreboard = scoreboardAuto.scoreboardAuto(username, s.gameMode, beatmapInfo, False)
+							oldScoreboard.setPersonalBestRank()
+							oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
+						oldPersonalBest = scoreAuto.score(s.oldPersonalBest, oldPersonalBestRank)
+					else:
+						oldPersonalBestRank = glob.personalBestCache.get(userID, s.fileMd5)
+						if oldPersonalBestRank == 0:
+							oldScoreboard = scoreboard.scoreboard(username, s.gameMode, beatmapInfo, False)
+							oldScoreboard.setPersonalBestRank()
+							oldPersonalBestRank = max(oldScoreboard.personalBestRank, 0)
+						oldPersonalBest = score.score(s.oldPersonalBest, oldPersonalBestRank)
+				else:
+					oldPersonalBestRank = 0
+					oldPersonalBest = None
 
 
 			log.info("before db save in db")
