@@ -7,6 +7,7 @@ from objects import scoreboard
 from objects import scoreboardRelax
 from objects import scoreboardAuto
 from common.constants import privileges
+from constants import rankedStatuses
 from common.log import logUtils as log
 from common.ripple import userUtils
 from common.web import requestsManager
@@ -93,20 +94,26 @@ class handler(requestsManager.asyncRequestHandler):
 
 			# Create beatmap object and set its data
 			bmap = beatmap.beatmap(md5, beatmapSetID, gameMode)
-
-			# Create leaderboard object, link it to bmap and get all scores
-			if bool(mods & 128):
-				sboard = scoreboardRelax.scoreboardRelax(
-				username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
-				)
-			elif bool(mods & 8192):
-				sboard = scoreboardAuto.scoreboardAuto(
-				username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
-				)
-			else:
+			b = beatmap.beatmap(self.fileMd5, 0)
+			b.rankedStatus != rankedStatuses.PENDING
+			if b.rankedStatus != rankedStatuses.PENDING:
 				sboard = scoreboard.scoreboard(
-				username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
-				)
+					username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
+					)
+			else:
+				# Create leaderboard object, link it to bmap and get all scores
+				if bool(mods & 128):
+					sboard = scoreboardRelax.scoreboardRelax(
+					username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
+					)
+				elif bool(mods & 8192):
+					sboard = scoreboardAuto.scoreboardAuto(
+					username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
+					)
+				else:
+					sboard = scoreboard.scoreboard(
+					username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
+					)
 
 			# Data to return
 			data = ""
