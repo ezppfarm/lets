@@ -15,7 +15,7 @@ from pp import cicciobello
 class score:
 	PP_CALCULATORS = {
 		gameModes.STD: relaxoppai.oppai,
-		gameModes.TAIKO: relaxoppai.oppai,
+		gameModes.TAIKO: oppai.oppai,
 		gameModes.CTB: cicciobello.Cicciobello,
 		gameModes.MANIA: wifipiano2.piano
 	}
