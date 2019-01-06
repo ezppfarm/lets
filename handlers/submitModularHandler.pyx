@@ -129,9 +129,7 @@ class handler(requestsManager.asyncRequestHandler):
 				s = scoreAuto.score()
 			else:
 				s = score.score()
-			log.info("{} getting passed {}...".format(username, scoreData[0]))
 			s.setDataFromScoreData(scoreData)
-			log.info("{} getting passed scoredata {}...".format(username, scoreData[0]))
 			s.playerUserID = userID
 			if s.completed == -1:
 				log.warning("We got a dulicated score.")
@@ -150,7 +148,6 @@ class handler(requestsManager.asyncRequestHandler):
 				log.debug("Beatmap is not submitted/outdated/unknown. Score submission aborted.")
 				return
 
-			
 		
 			length = 0
 			if s.passed:
@@ -249,10 +246,7 @@ class handler(requestsManager.asyncRequestHandler):
 					oldPersonalBest = None
 
 
-			log.info("before db save in db")
 			s.saveScoreInDB()
-			log.info("saved score in db")
-
 
 			'''ignoreFlags = 4
 			if glob.debug == True:
