@@ -219,8 +219,9 @@ class handler(requestsManager.asyncRequestHandler):
 				oldPersonalBest = None
 
 
-
+			log.info("before db save in db".)
 			s.saveScoreInDB()
+			log.info("saved score in db".)
 
 
 			'''ignoreFlags = 4
