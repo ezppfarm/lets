@@ -94,7 +94,7 @@ class handler(requestsManager.asyncRequestHandler):
 
 			# Create beatmap object and set its data
 			bmap = beatmap.beatmap(md5, beatmapSetID, gameMode)
-			b = beatmap.beatmap(self.fileMd5, 0)
+			b = beatmap.beatmap(md5, 0)
 			b.rankedStatus != rankedStatuses.PENDING
 			if b.rankedStatus != rankedStatuses.PENDING:
 				sboard = scoreboard.scoreboard(
