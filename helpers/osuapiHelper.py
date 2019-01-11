@@ -2,27 +2,12 @@ import json
 from urllib.parse import quote
 
 import requests
-from helpers import ppyFormat
+
 from common.log import logUtils as log
 from common import generalUtils
 from objects import glob
 from constants import exceptions
 
-def getDifficulty(beatmap_md5, nomod=True):
-	resp = requests.get("http://osu.ppy.sh/web/osu-getdifficulty.php?c[]={}".format(beatmap_md5)).text
-	if len(resp) <= 0:
-		return None
-	else:
-		data = ppyFormat.verticalSplit(resp, ["hash", "mode", "mods", "difficulty"])
-		if data is None:
-			return None
-		if nomod == True:
-			newData = []
-			for diff in data:
-				if diff["mods"] == "0":
-					newData.append(diff)
-			data = newData
-		return data	
 
 def osuApiRequest(request, params, getFirst=True):
 	"""

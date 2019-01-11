@@ -1,15 +1,10 @@
-import sys
-import traceback
-
 import tornado.gen
 import tornado.web
-from raven.contrib.tornado import SentryMixin
 
 from common.log import logUtils as log
 from common.web import requestsManager
 from constants import exceptions
 from helpers import osuapiHelper
-from objects import glob
 from common.sentry import sentry
 
 MODULE_NAME = "maps"
@@ -31,6 +26,7 @@ class handler(requestsManager.asyncRequestHandler):
 			# Get .osu file from osu! server
 			fileContent = osuapiHelper.getOsuFileFromName(fileName)
 			if fileContent is None:
+				# TODO: Sentry capture message here
 				raise exceptions.osuApiFailException(MODULE_NAME)
 			self.write(fileContent)
 		except exceptions.invalidArgumentsException:
