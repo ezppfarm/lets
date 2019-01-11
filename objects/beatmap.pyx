@@ -316,7 +316,8 @@ class beatmap:
 
 		if self.rankedStatus == rankedStatuses.PENDING:
 			rankedStatusOutput = rankedStatuses.LOVED		
-
+		if self.rankedStatus == rankedStatuses.NOT_SUBMITTED:
+			rankedStatusOutput = rankedStatuses.UNKNOWN	
 
 		# Fix loved maps for old clients
 		if version < 4 and self.rankedStatus == rankedStatuses.LOVED:
