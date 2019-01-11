@@ -1,5 +1,4 @@
 import time
-from common import generalUtils
 
 from common.log import logUtils as log
 from constants import rankedStatuses
@@ -253,30 +252,6 @@ class beatmap:
 			self.bpm = -1
 		return True
 
-	def beatmapStatus(self, md5):
-		status = glob.redis.get("lets:beatmap_status:{}".format(md5))
-		if status is not None:
-			status = int(status)
-			if status < 2:
-				self.rankedStatus = status
-				return False
-			return True
-		fileContent = osuapiHelper.getOsuFileFromName(self.beatmapID)
-		if fileContent is not None:
-			fileMD5 = generalUtils.stringMd5(fileContent.decode())
-			status = 2
-			result = True
-			if fileMD5 != md5:
-				self.rankedStatus = rankedStatuses.NEED_UPDATE
-				status = 1
-				result = False
-		else:
-			self.rankedStatus = rankedStatuses.NOT_SUBMITTED
-			status = -1
-			result = False
-		
-		glob.redis.set("lets:beatmap_status:{}".format(md5), status, 300)
-		return result
 	def setData(self, md5, beatmapSetID):
 		"""
 		Set this object's beatmap data from highest level possible.
@@ -295,13 +270,17 @@ class beatmap:
 		if not dbResult:
 			log.debug("Beatmap not found in db")
 			# If this beatmap is not in db, get it from osu!api
-			apiResult = None
-			if self.beatmapStatus(md5) == True:
-				apiResult = self.setDataFromOsuApi(md5, beatmapSetID)
-			if not apiResult:	
-				log.debug("beatmap not found in api")
+			apiResult = self.setDataFromOsuApi(md5, beatmapSetID)
+			if not apiResult:
+				# If it's not even in osu!api, this beatmap is not submitted
+				self.rankedStatus = rankedStatuses.NOT_SUBMITTED
+			elif self.rankedStatus != rankedStatuses.NOT_SUBMITTED and self.rankedStatus != rankedStatuses.NEED_UPDATE:
+				# We get beatmap data from osu!api, save it in db
+				self.addBeatmapToDB()
 		else:
 			log.debug("Beatmap found in db")
+
+		log.debug("{}\n{}\n{}\n{}".format(self.starsStd, self.starsTaiko, self.starsCtb, self.starsMania))
 	
 	def getData(self, totalScores=0, version=4):
 		"""
@@ -310,7 +289,7 @@ class beatmap:
 		"""
 		rankedStatusOutput = self.rankedStatus
 
-		
+
 		if self.rankedStatus == rankedStatuses.LOVED:
 			rankedStatusOutput = rankedStatuses.APPROVED
 
@@ -326,7 +305,7 @@ class beatmap:
 		if self.rankedStatus != rankedStatuses.NOT_SUBMITTED and self.rankedStatus != rankedStatuses.NEED_UPDATE and self.rankedStatus != rankedStatuses.UNKNOWN:
 			# If the beatmap is updated and exists, the client needs more data
 			data += "|{}|{}|{}\n{}\n{}\n{}\n".format(self.beatmapID, self.beatmapSetID, totalScores, self.offset, self.songName, self.rating)
-		log.info("map status = {}".format(rankedStatusOutput))
+
 		# Return the header
 		return data
 	def getCachedTillerinoPP(self):
