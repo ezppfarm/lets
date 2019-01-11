@@ -289,6 +289,10 @@ class beatmap:
 		"""
 		rankedStatusOutput = self.rankedStatus
 
+		if not apiResult:
+			rankedStatusOutput == rankedStatuses.NOT_SUBMITTED
+
+
 
 		if self.rankedStatus == rankedStatuses.LOVED:
 			rankedStatusOutput = rankedStatuses.APPROVED
