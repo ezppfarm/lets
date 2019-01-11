@@ -289,7 +289,7 @@ class beatmap:
 		"""
 		rankedStatusOutput = self.rankedStatus
 		
-		apiResult = self.setDataFromOsuApi(md5, beatmapSetID)
+		apiResult = self.setDataFromOsuApi(self.fileMD5, self.beatmapSetID)
 		if not apiResult:
 			rankedStatusOutput == rankedStatuses.NOT_SUBMITTED
 
