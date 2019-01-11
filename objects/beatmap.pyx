@@ -288,7 +288,8 @@ class beatmap:
 		return -- beatmap header for getscores
 		"""
 		rankedStatusOutput = self.rankedStatus
-
+		
+		apiResult = self.setDataFromOsuApi(md5, beatmapSetID)
 		if not apiResult:
 			rankedStatusOutput == rankedStatuses.NOT_SUBMITTED
 
