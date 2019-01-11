@@ -5,7 +5,7 @@ from common.log import logUtils as log
 from constants import rankedStatuses
 from helpers import osuapiHelper
 from objects import glob
-
+from common.constants.gameModes import getGameModeForDB
 
 class beatmap:
 	__slots__ = ["songName", "fileMD5", "rankedStatus", "rankedStatusFrozen", "beatmapID", "beatmapSetID", "offset",
@@ -295,7 +295,7 @@ class beatmap:
 		if not dbResult:
 			log.debug("Beatmap not found in db")
 			# If this beatmap is not in db, get it from osu!api
-			apiResult = Noneself.rankedStatus = rankedStatuses.NOT_SUBMITTED
+
 			if self.beatmapStatus(md5) == True:
 				apiResult = self.setDataFromOsuApi(md5, beatmapSetID)
 			if not apiResult:	
