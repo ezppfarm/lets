@@ -1,10 +1,5 @@
 import time
-import requests
-import datetime
-import re
-import threading
 
-from common import generalUtils
 from common.log import logUtils as log
 from constants import rankedStatuses
 from helpers import osuapiHelper
@@ -12,11 +7,11 @@ from objects import glob
 
 
 class beatmap:
-	__slots__ = ["songName", "fileMD5", "fileName" "rankedStatus", "rankedStatusFrozen", "beatmapID", "beatmapSetID", "offset",
+	__slots__ = ["songName", "fileMD5", "rankedStatus", "rankedStatusFrozen", "beatmapID", "beatmapSetID", "offset",
 	             "rating", "starsStd", "starsTaiko", "starsCtb", "starsMania", "AR", "OD", "maxCombo", "hitLength",
 	             "bpm", "playcount" ,"passcount", "refresh"]
 
-	def __init__(self, md5 = None, beatmapSetID = None, gameMode = 0, refresh=False, fileName=""):
+	def __init__(self, md5 = None, beatmapSetID = None, gameMode = 0, refresh=False):
 		"""
 		Initialize a beatmap object.
 		md5 -- beatmap md5. Optional.
@@ -24,7 +19,6 @@ class beatmap:
 		"""
 		self.songName = ""
 		self.fileMD5 = ""
-		self.fileName = fileName
 		self.rankedStatus = rankedStatuses.NOT_SUBMITTED
 		self.rankedStatusFrozen = 0
 		self.beatmapID = 0
@@ -258,30 +252,6 @@ class beatmap:
 			self.bpm = -1
 		return True
 
-	def beatmapStatus(self, md5):
-		status = glob.redis.get("lets:beatmap_status:{}".format(md5))
-		if status is not None:
-			status = int(status)
-			if status < 2:
-				self.rankedStatus = status
-				return False
-			return True
-		fileContent = osuapiHelper.getOsuFileFromName(self.fileName)
-		if fileContent is not None:
-			fileMD5 = generalUtils.stringMd5(fileContent.decode())
-			status = 2
-			result = True
-			if fileMD5 != md5:
-				self.rankedStatus = rankedStatuses.NEED_UPDATE
-				status = 1
-				result = False
-		else:
-			self.rankedStatus = rankedStatuses.NOT_SUBMITTED
-			status = -1
-			result = False
-		glob.redis.set("lets:beatmap_status:{}".format(md5), status, 300)
-		return result
-
 	def setData(self, md5, beatmapSetID):
 		"""
 		Set this object's beatmap data from highest level possible.
@@ -300,14 +270,17 @@ class beatmap:
 		if not dbResult:
 			log.debug("Beatmap not found in db")
 			# If this beatmap is not in db, get it from osu!api
-			apiResult = None
-			if self.beatmapStatus(md5) == True:
-				apiResult = self.setDataFromOsuApi(md5, beatmapSetID)
-			if not apiResult:	
-				log.debug("beatmap not found in api")
+			apiResult = self.setDataFromOsuApi(md5, beatmapSetID)
+			if not apiResult:
+				# If it's not even in osu!api, this beatmap is not submitted
+				self.rankedStatus = rankedStatuses.NOT_SUBMITTED
+			elif self.rankedStatus != rankedStatuses.NOT_SUBMITTED and self.rankedStatus != rankedStatuses.NEED_UPDATE:
+				# We get beatmap data from osu!api, save it in db
+				self.addBeatmapToDB()
 		else:
 			log.debug("Beatmap found in db")
 
+		log.debug("{}\n{}\n{}\n{}".format(self.starsStd, self.starsTaiko, self.starsCtb, self.starsMania))
 	
 	def getData(self, totalScores=0, version=4):
 		"""
@@ -315,11 +288,6 @@ class beatmap:
 		return -- beatmap header for getscores
 		"""
 		rankedStatusOutput = self.rankedStatus
-		
-		apiResult = self.setDataFromOsuApi(self.fileMD5, self.beatmapSetID)
-		if not apiResult:
-			rankedStatusOutput == rankedStatuses.NOT_SUBMITTED
-
 
 
 		if self.rankedStatus == rankedStatuses.LOVED:

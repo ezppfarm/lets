@@ -91,11 +91,11 @@ class handler(requestsManager.asyncRequestHandler):
 				friends = True
 
 			# Console output
-			#fileNameShort = fileName[:32]+"..." if len(fileName) > 32 else fileName[:-4]
-			#log.info("Requested beatmap {} ({})".format(fileNameShort, md5))
+			fileNameShort = fileName[:32]+"..." if len(fileName) > 32 else fileName[:-4]
+			log.info("Requested beatmap {} ({})".format(fileNameShort, md5))
 
 			# Create beatmap object and set its data
-			bmap = beatmap.beatmap(md5, beatmapSetID, gameMode, fileName = fileName)
+			bmap = beatmap.beatmap(md5, beatmapSetID, gameMode)
 			b = beatmap.beatmap(md5, 0)
 
 			if b.rankedStatus == rankedStatuses.PENDING:
