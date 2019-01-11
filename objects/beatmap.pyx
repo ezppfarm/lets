@@ -266,14 +266,15 @@ class beatmap:
 			fileMD5 = generalUtils.stringMd5(fileContent.decode())
 			status = 2
 			result = True
-			if fileMD5 != md5:
-				self.rankedStatus = rankedStatuses.NEED_UPDATE
-				status = 1
-				result = False
-			elif self.beatmapID is None:
+			if self.beatmapID is None:
 				self.rankedStatus = rankedStatuses.NOT_SUBMITTED
 				status = -1
 				result = False
+			else:	
+				if fileMD5 != md5:
+					self.rankedStatus = rankedStatuses.NEED_UPDATE
+					status = 1
+					result = False
 		else:
 			self.rankedStatus = rankedStatuses.NOT_SUBMITTED
 			status = -1
