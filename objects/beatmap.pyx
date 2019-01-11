@@ -287,7 +287,7 @@ class beatmap:
 		md5 -- beatmap MD5
 		beatmapSetID -- beatmap set ID
 		"""
-	# Get beatmap from db
+		# Get beatmap from db
 		dbResult = self.setDataFromDB(md5)
 
 		# Force refresh from osu api.
@@ -299,7 +299,7 @@ class beatmap:
 		if not dbResult:
 			log.debug("Beatmap not found in db")
 			# If this beatmap is not in db, get it from osu!api
-
+			apiResult = None
 			if self.beatmapStatus(md5) == True:
 				apiResult = self.setDataFromOsuApi(md5, beatmapSetID)
 			if not apiResult:	
