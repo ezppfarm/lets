@@ -252,6 +252,30 @@ class beatmap:
 			self.bpm = -1
 		return True
 
+	def beatmapStatus(self, md5):
+		status = glob.redis.get("lets:beatmap_status:{}".format(md5))
+		if status is not None:
+			status = int(status)
+			if status < 2:
+				self.rankedStatus = status
+				return False
+			return True
+		fileContent = osuapiHelper.getOsuFileFromName(self.fileName)
+		if fileContent is not None:
+			fileMD5 = generalUtils.stringMd5(fileContent.decode())
+			status = 2
+			result = True
+			if fileMD5 != md5:
+				self.rankedStatus = rankedStatuses.NEED_UPDATE
+				status = 1
+				result = False
+		else:
+			self.rankedStatus = rankedStatuses.NOT_SUBMITTED
+			status = -1
+			result = False
+		glob.redis.set("lets:beatmap_status:{}".format(md5), status, 300)
+		return result
+		
 	def setData(self, md5, beatmapSetID):
 		"""
 		Set this object's beatmap data from highest level possible.
@@ -264,8 +288,8 @@ class beatmap:
 		# Force refresh from osu api.
 		# We get data before to keep frozen maps ranked
 		# if they haven't been updated
-		if dbResult == True and self.refresh:
-			self.refreshBeatmap(md5, beatmapSetID)
+		if dbResult and self.refresh:
+			dbResult = False
 
 		if not dbResult:
 			log.debug("Beatmap not found in db")
