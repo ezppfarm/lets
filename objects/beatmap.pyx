@@ -261,7 +261,7 @@ class beatmap:
 				self.rankedStatus = status
 				return False
 			return True
-		fileContent = osuapiHelper.getOsuFileFromName(self.beatmapID)
+		fileContent = osuapiHelper.getOsuFileFromID(self.beatmapID)
 		if fileContent is not None:
 			fileMD5 = generalUtils.stringMd5(fileContent.decode())
 			status = 2
