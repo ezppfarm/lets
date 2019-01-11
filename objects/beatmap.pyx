@@ -1,5 +1,4 @@
 import time
-from common import generalUtils
 
 from common.log import logUtils as log
 from constants import rankedStatuses
@@ -169,29 +168,7 @@ class beatmap:
 		# Ranking panel statistics
 		self.playcount = int(data["playcount"]) if "playcount" in data else 0
 		self.passcount = int(data["passcount"]) if "passcount" in data else 0
-	def beatmapStatus(self, md5):
-		status = glob.redis.get("lets:beatmap_status:{}".format(md5))
-		if status is not None:
-			status = int(status)
-			if status < 2:
-				self.rankedStatus = status
-				return False
-			return True
-		fileContent = osuapiHelper.getOsuFileFromID(self.beatmapID)
-		if fileContent is not None:
-			fileMD5 = generalUtils.stringMd5(fileContent.decode())
-			status = 2
-			result = True
-			if fileMD5 != md5:
-				self.rankedStatus = rankedStatuses.NEED_UPDATE
-				status = 1
-				result = False
-		else:
-			self.rankedStatus = rankedStatuses.NOT_SUBMITTED
-			status = -1
-			result = False
-		glob.redis.set("lets:beatmap_status:{}".format(md5), status, 300)
-		return result
+
 	def setDataFromOsuApi(self, md5, beatmapSetID):
 		"""
 		Set this object's beatmap data from osu!api.
@@ -274,13 +251,14 @@ class beatmap:
 		else:
 			self.bpm = -1
 		return True
+
 	def setData(self, md5, beatmapSetID):
 		"""
 		Set this object's beatmap data from highest level possible.
 		md5 -- beatmap MD5
 		beatmapSetID -- beatmap set ID
 		"""
-	# Get beatmap from db
+		# Get beatmap from db
 		dbResult = self.setDataFromDB(md5)
 
 		# Force refresh from osu api.
@@ -292,14 +270,17 @@ class beatmap:
 		if not dbResult:
 			log.debug("Beatmap not found in db")
 			# If this beatmap is not in db, get it from osu!api
-			apiResult = None
-			if self.beatmapStatus(md5) == True:
-				apiResult = self.setDataFromOsuApi(md5, beatmapSetID)
-			if not apiResult:	
-				log.debug("beatmap not found in api")
+			apiResult = self.setDataFromOsuApi(md5, beatmapSetID)
+			if not apiResult:
+				# If it's not even in osu!api, this beatmap is not submitted
+				self.rankedStatus = rankedStatuses.NOT_SUBMITTED
+			elif self.rankedStatus != rankedStatuses.NOT_SUBMITTED and self.rankedStatus != rankedStatuses.NEED_UPDATE:
+				# We get beatmap data from osu!api, save it in db
+				self.addBeatmapToDB()
 		else:
 			log.debug("Beatmap found in db")
 
+		log.debug("{}\n{}\n{}\n{}".format(self.starsStd, self.starsTaiko, self.starsCtb, self.starsMania))
 	
 	def getData(self, totalScores=0, version=4):
 		"""
