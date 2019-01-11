@@ -212,13 +212,22 @@ class beatmap:
 			elif dataMania is not None:
 				mainData = dataMania
 
-			if mainData is None:
-				# Still no data, beatmap is not submitted
-				return False
-			else:
-				# We have some data, but md5 doesn't match. Beatmap is outdated
-				self.rankedStatus = rankedStatuses.NEED_UPDATE
-				return True
+		if mainData is None:
+			log.error("Beatmap data from osu api is empty! beatmap_md5 = {}".format(md5))
+			self.fileMD5 = None
+			return False
+
+		try:
+			self.fileMD5 = md5
+			self.rankedStatus = convertRankedStatus(int(mainData["approved"]))
+			if self.rankedStatus == rankedStatuses.QUALIFIED:
+				glob.db.execute("UPDATE beatmaps SET latest_update = latest_update - 219600 WHERE beatmapset_id = %s AND ranked != 4",[beatmapSetID])
+			if dbMD5 is not None:
+				if dbMD5["ranked"] == 4 and self.rankedStatus != rankedStatuses.QUALIFIED:
+					glob.db.execute("UPDATE beatmaps SET ranked = %s WHERE beatmapset_id = %s",[self.rankedStatus, beatmapSetID])
+				
+		except Exception:
+			return False
 
 
 		# We have data from osu!api, set beatmap data
@@ -251,6 +260,8 @@ class beatmap:
 			self.bpm = int(float(mainData["bpm"]))
 		else:
 			self.bpm = -1
+		if self.rankedStatus != rankedStatuses.NOT_SUBMITTED and self.rankedStatus != rankedStatuses.NEED_UPDATE and self.rankedStatus != rankedStatuses.UNKNOWN:	
+			self.addBeatmapToDB()
 		return True
 
 	def beatmapStatus(self, md5):
@@ -266,15 +277,10 @@ class beatmap:
 			fileMD5 = generalUtils.stringMd5(fileContent.decode())
 			status = 2
 			result = True
-			if self.beatmapID is None:
-				self.rankedStatus = rankedStatuses.NOT_SUBMITTED
-				status = -1
+			if fileMD5 != md5:
+				self.rankedStatus = rankedStatuses.NEED_UPDATE
+				status = 1
 				result = False
-			else:	
-				if fileMD5 != md5:
-					self.rankedStatus = rankedStatuses.NEED_UPDATE
-					status = 1
-					result = False
 		else:
 			self.rankedStatus = rankedStatuses.NOT_SUBMITTED
 			status = -1
