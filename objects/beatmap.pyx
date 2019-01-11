@@ -177,6 +177,11 @@ class beatmap:
 		beatmapSetID -- beatmap set ID, used to check if a map is outdated
 		return -- True if set, False if not set
 		"""
+
+		dbMD5 = glob.db.fetch("SELECT beatmap_md5, ranked FROM beatmaps WHERE beatmap_md5 = %s",[md5])
+		if dbMD5 is not None and self.refresh == False:
+			return True
+
 		# Check if osuapi is enabled
 		mainData = None
 		dataStd = osuapiHelper.osuApiRequest("get_beatmaps", "h={}&a=1&m=0".format(md5))
