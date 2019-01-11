@@ -274,6 +274,7 @@ class beatmap:
 			self.rankedStatus = rankedStatuses.NOT_SUBMITTED
 			status = -1
 			result = False
+		log.info("map status = {}".format(status))
 		glob.redis.set("lets:beatmap_status:{}".format(md5), status, 300)
 		return result
 	def setData(self, md5, beatmapSetID):
