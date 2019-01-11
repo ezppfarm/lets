@@ -269,6 +269,7 @@ class beatmap:
 
 		if not dbResult:
 			log.debug("Beatmap not found in db")
+			self.rankedStatus = rankedStatuses.NOT_SUBMITTED
 			# If this beatmap is not in db, get it from osu!api
 			apiResult = self.setDataFromOsuApi(md5, beatmapSetID)
 			if not apiResult:
