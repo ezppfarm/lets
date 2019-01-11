@@ -270,6 +270,10 @@ class beatmap:
 				self.rankedStatus = rankedStatuses.NEED_UPDATE
 				status = 1
 				result = False
+			else if beatmapID is None:
+				self.rankedStatus = rankedStatuses.NOT_SUBMITTED
+				status = -1
+				result = False
 		else:
 			self.rankedStatus = rankedStatuses.NOT_SUBMITTED
 			status = -1
