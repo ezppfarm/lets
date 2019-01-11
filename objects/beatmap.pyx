@@ -264,23 +264,20 @@ class beatmap:
 		# Force refresh from osu api.
 		# We get data before to keep frozen maps ranked
 		# if they haven't been updated
-		if dbResult and self.refresh:
-			dbResult = False
+		if dbResult == True and self.refresh:
+			self.refreshBeatmap(md5, beatmapSetID)
 
 		if not dbResult:
 			log.debug("Beatmap not found in db")
 			# If this beatmap is not in db, get it from osu!api
-			apiResult = self.setDataFromOsuApi(md5, beatmapSetID)
-			if not apiResult:
-				# If it's not even in osu!api, this beatmap is not submitted
-				self.rankedStatus = rankedStatuses.NOT_SUBMITTED
-			elif self.rankedStatus != rankedStatuses.NOT_SUBMITTED and self.rankedStatus != rankedStatuses.NEED_UPDATE:
-				# We get beatmap data from osu!api, save it in db
-				self.addBeatmapToDB()
+			apiResult = None
+			if self.beatmapStatus(md5) == True:
+				apiResult = self.setDataFromOsuApi(md5, beatmapSetID)
+			if not apiResult:	
+				log.debug("beatmap not found in api")
 		else:
 			log.debug("Beatmap found in db")
 
-		log.debug("{}\n{}\n{}\n{}".format(self.starsStd, self.starsTaiko, self.starsCtb, self.starsMania))
 	
 	def getData(self, totalScores=0, version=4):
 		"""
