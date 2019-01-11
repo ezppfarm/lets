@@ -12,7 +12,7 @@ from objects import glob
 from common.constants.gameModes import getGameModeForDB
 
 class beatmap:
-	__slots__ = ["songName", "fileMD5", "rankedStatus", "rankedStatusFrozen", "beatmapID", "beatmapSetID", "offset",
+	__slots__ = ["songName",  "rankedStatus", "rankedStatusFrozen", "beatmapID", "beatmapSetID", "offset",
 	             "rating", "starsStd", "starsTaiko", "starsCtb", "starsMania", "AR", "OD", "maxCombo", "hitLength",
 	             "bpm", "playcount" ,"passcount", "refresh"]
 
