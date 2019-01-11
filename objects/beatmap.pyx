@@ -1,4 +1,5 @@
 import time
+from common import generalUtils
 
 from common.log import logUtils as log
 from constants import rankedStatuses
@@ -168,8 +169,33 @@ class beatmap:
 		# Ranking panel statistics
 		self.playcount = int(data["playcount"]) if "playcount" in data else 0
 		self.passcount = int(data["passcount"]) if "passcount" in data else 0
+	def beatmapStatus(self, md5):
+		status = glob.redis.get("lets:beatmap_status:{}".format(md5))
+		if status is not None:
+			status = int(status)
+			if status < 2:
+				self.rankedStatus = status
+				return False
+			return True
+		fileContent = osuapiHelper.getOsuFileFromID(self.beatmapID)
+		if fileContent is not None:
+			fileMD5 = generalUtils.stringMd5(fileContent.decode())
+			status = 2
+			result = True
+			if fileMD5 != md5:
+				self.rankedStatus = rankedStatuses.NEED_UPDATE
+				status = 1
+				result = False
+		else:
+			self.rankedStatus = rankedStatuses.NOT_SUBMITTED
+			status = -1
+			result = False
+		glob.redis.set("lets:beatmap_status:{}".format(md5), status, 300)
+		return result
+	def setDataFromOsuApi(self, md5, beatmapSetID, diffData = None):
 
-	def setDataFromOsuApi(self, md5, beatmapSetID):
+		if md5 is None or beatmapSetID is None or beatmapSetID == 0 or md5 == "":
+			return None
 		"""
 		Set this object's beatmap data from osu!api.
 		md5 -- beatmap md5
@@ -177,72 +203,70 @@ class beatmap:
 		return -- True if set, False if not set
 		"""
 		# Check if osuapi is enabled
-		mainData = None
-		dataStd = osuapiHelper.osuApiRequest("get_beatmaps", "h={}&a=1&m=0".format(md5))
-		dataTaiko = osuapiHelper.osuApiRequest("get_beatmaps", "h={}&a=1&m=1".format(md5))
-		dataCtb = osuapiHelper.osuApiRequest("get_beatmaps", "h={}&a=1&m=2".format(md5))
-		dataMania = osuapiHelper.osuApiRequest("get_beatmaps", "h={}&a=1&m=3".format(md5))
-		if dataStd is not None:
-			mainData = dataStd
-		elif dataTaiko is not None:
-			mainData = dataTaiko
-		elif dataCtb is not None:
-			mainData = dataCtb
-		elif dataMania is not None:
-			mainData = dataMania
-
-		# If the beatmap is frozen and still valid from osu!api, return True so we don't overwrite anything
-		if mainData is not None and self.rankedStatusFrozen == 1:
+		dbMD5 = glob.db.fetch("SELECT beatmap_md5, ranked FROM beatmaps WHERE beatmap_md5 = %s",[md5])
+		if dbMD5 is not None and self.refresh == False:
 			return True
 
-		# Can't fint beatmap by MD5. The beatmap has been updated. Check with beatmap set ID
+		mainData = None
+		if diffData == None:
+			diffData = osuapiHelper.getDifficulty(md5)
+		
+		if diffData is not None:
+			mainData = osuapiHelper.osuApiRequest("get_beatmaps", "h={}".format(md5))
+		if mainData is not None:
+			pattern = re.compile("(evilarthas|arthas|papich)")
+			match = pattern.search(mainData["tags"])
+			match = True if mainData["artist"].lower().startswith('papich') else match
+			match = True if mainData["artist"].lower().startswith('madevil') else match
+			if match:
+				mainData = None
+		# Can't fint beatmap by MD5. The beatmap has been updated.
 		if mainData is None:
-			log.debug("osu!api data is None")
-			dataStd = osuapiHelper.osuApiRequest("get_beatmaps", "s={}&a=1&m=0".format(beatmapSetID))
-			dataTaiko = osuapiHelper.osuApiRequest("get_beatmaps", "s={}&a=1&m=1".format(beatmapSetID))
-			dataCtb = osuapiHelper.osuApiRequest("get_beatmaps", "s={}&a=1&m=2".format(beatmapSetID))
-			dataMania = osuapiHelper.osuApiRequest("get_beatmaps", "s={}&a=1&m=3".format(beatmapSetID))
-			if dataStd is not None:
-				mainData = dataStd
-			elif dataTaiko is not None:
-				mainData = dataTaiko
-			elif dataCtb is not None:
-				mainData = dataCtb
-			elif dataMania is not None:
-				mainData = dataMania
+			log.error("Beatmap data from osu api is empty! beatmap_md5 = {}".format(md5))
+			self.fileMD5 = None
+			return False
 
-			if mainData is None:
-				# Still no data, beatmap is not submitted
-				return False
-			else:
-				# We have some data, but md5 doesn't match. Beatmap is outdated
-				self.rankedStatus = rankedStatuses.NEED_UPDATE
-				return True
-
-
-		# We have data from osu!api, set beatmap data
+		try:
+			self.fileMD5 = md5
+			self.rankedStatus = convertRankedStatus(int(mainData["approved"]))
+			if self.rankedStatus == rankedStatuses.QUALIFIED:
+				glob.db.execute("UPDATE beatmaps SET latest_update = latest_update - 219600 WHERE beatmapset_id = %s AND ranked != 4",[beatmapSetID])
+			if dbMD5 is not None:
+				if dbMD5["ranked"] == 4 and self.rankedStatus != rankedStatuses.QUALIFIED:
+					glob.db.execute("UPDATE beatmaps SET ranked = %s WHERE beatmapset_id = %s",[self.rankedStatus, beatmapSetID])
+				
+		except Exception:
+			return False							
 		log.debug("Got beatmap data from osu!api")
 		self.songName = "{} - {} [{}]".format(mainData["artist"], mainData["title"], mainData["version"])
-		self.fileMD5 = md5
-		self.rankedStatus = convertRankedStatus(int(mainData["approved"]))
-		self.beatmapID = int(mainData["beatmap_id"])
-		self.beatmapSetID = int(mainData["beatmapset_id"])
 		self.AR = float(mainData["diff_approach"])
 		self.OD = float(mainData["diff_overall"])
-
+		self.HP = float(mainData["diff_drain"])
+		self.CS = float(mainData["diff_size"])
+		self.mode = int(mainData["mode"])
+		self.artist = mainData["artist"]
+		self.title = mainData["title"]
+		self.rankingDate = int(time.mktime(datetime.datetime.strptime(mainData["last_update"], "%Y-%m-%d %H:%M:%S").timetuple()))
+		self.version = mainData["version"]
+		self.creator = mainData["creator"]
+		self.beatmapID = int(mainData["beatmap_id"])
+		self.beatmapSetID = int(mainData["beatmapset_id"])
 		# Determine stars for every mode
-		self.starsStd = 0.0
-		self.starsTaiko = 0.0
-		self.starsCtb = 0.0
-		self.starsMania = 0.0
-		if dataStd is not None:
-			self.starsStd = float(dataStd["difficultyrating"])
-		if dataTaiko is not None:
-			self.starsTaiko = float(dataTaiko["difficultyrating"])
-		if dataCtb is not None:
-			self.starsCtb = float(dataCtb["difficultyrating"])
-		if dataMania is not None:
-			self.starsMania = float(dataMania["difficultyrating"])
+		self.starsStd = 0
+		self.starsTaiko = 0
+		self.starsCtb = 0
+		self.starsMania = 0
+		if self.mode == 0:
+			self.starsStd = float(diffData[0]["difficulty"])
+			if len(diffData) > 1:
+				self.starsTaiko = float(diffData[1]["difficulty"])
+			if len(diffData) > 2:
+				self.starsCtb = float(diffData[2]["difficulty"])
+			if len(diffData) > 3:
+				self.starsMania = float(diffData[3]["difficulty"])
+		else:
+			modeText = getGameModeForDB(self.mode).title()
+			setattr(self, 'stars{}'.format(modeText), float(diffData[0]["difficulty"]))
 
 		self.maxCombo = int(mainData["max_combo"]) if mainData["max_combo"] is not None else 0
 		self.hitLength = int(mainData["hit_length"])
@@ -250,15 +274,16 @@ class beatmap:
 			self.bpm = int(float(mainData["bpm"]))
 		else:
 			self.bpm = -1
+		if self.rankedStatus != rankedStatuses.NOT_SUBMITTED and self.rankedStatus != rankedStatuses.NEED_UPDATE and self.rankedStatus != rankedStatuses.UNKNOWN:	
+			self.addBeatmapToDB()
 		return True
-
 	def setData(self, md5, beatmapSetID):
 		"""
 		Set this object's beatmap data from highest level possible.
 		md5 -- beatmap MD5
 		beatmapSetID -- beatmap set ID
 		"""
-		# Get beatmap from db
+	# Get beatmap from db
 		dbResult = self.setDataFromDB(md5)
 
 		# Force refresh from osu api.
@@ -269,19 +294,15 @@ class beatmap:
 
 		if not dbResult:
 			log.debug("Beatmap not found in db")
-			self.rankedStatus = rankedStatuses.NOT_SUBMITTED
 			# If this beatmap is not in db, get it from osu!api
-			apiResult = self.setDataFromOsuApi(md5, beatmapSetID)
-			if not apiResult:
-				# If it's not even in osu!api, this beatmap is not submitted
-				self.rankedStatus = rankedStatuses.NOT_SUBMITTED
-			elif self.rankedStatus != rankedStatuses.NOT_SUBMITTED and self.rankedStatus != rankedStatuses.NEED_UPDATE:
-				# We get beatmap data from osu!api, save it in db
-				self.addBeatmapToDB()
+			apiResult = Noneself.rankedStatus = rankedStatuses.NOT_SUBMITTED
+			if self.beatmapStatus(md5) == True:
+				apiResult = self.setDataFromOsuApi(md5, beatmapSetID)
+			if not apiResult:	
+				log.debug("beatmap not found in api")
 		else:
 			log.debug("Beatmap found in db")
 
-		log.debug("{}\n{}\n{}\n{}".format(self.starsStd, self.starsTaiko, self.starsCtb, self.starsMania))
 	
 	def getData(self, totalScores=0, version=4):
 		"""
