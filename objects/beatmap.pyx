@@ -1,5 +1,6 @@
 import time
 
+from common import generalUtils
 from common.log import logUtils as log
 from constants import rankedStatuses
 from helpers import osuapiHelper
@@ -275,7 +276,7 @@ class beatmap:
 			result = False
 		glob.redis.set("lets:beatmap_status:{}".format(md5), status, 300)
 		return result
-		
+
 	def setData(self, md5, beatmapSetID):
 		"""
 		Set this object's beatmap data from highest level possible.
