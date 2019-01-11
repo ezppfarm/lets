@@ -274,7 +274,7 @@ class beatmap:
 			self.rankedStatus = rankedStatuses.NOT_SUBMITTED
 			status = -1
 			result = False
-		log.info("map status = {}".format(status))
+		
 		glob.redis.set("lets:beatmap_status:{}".format(md5), status, 300)
 		return result
 	def setData(self, md5, beatmapSetID):
@@ -310,7 +310,7 @@ class beatmap:
 		"""
 		rankedStatusOutput = self.rankedStatus
 
-
+		
 		if self.rankedStatus == rankedStatuses.LOVED:
 			rankedStatusOutput = rankedStatuses.APPROVED
 
@@ -326,7 +326,7 @@ class beatmap:
 		if self.rankedStatus != rankedStatuses.NOT_SUBMITTED and self.rankedStatus != rankedStatuses.NEED_UPDATE and self.rankedStatus != rankedStatuses.UNKNOWN:
 			# If the beatmap is updated and exists, the client needs more data
 			data += "|{}|{}|{}\n{}\n{}\n{}\n".format(self.beatmapID, self.beatmapSetID, totalScores, self.offset, self.songName, self.rating)
-
+		log.info("map status = {}".format(rankedStatusOutput))
 		# Return the header
 		return data
 	def getCachedTillerinoPP(self):
