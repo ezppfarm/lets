@@ -16,7 +16,7 @@ class beatmap:
 	             "rating", "starsStd", "starsTaiko", "starsCtb", "starsMania", "AR", "OD", "maxCombo", "hitLength",
 	             "bpm", "playcount" ,"passcount", "refresh"]
 
-	def __init__(self, md5 = None, beatmapSetID = None, gameMode = 0, refresh=False, fileName=""):
+	def __init__(self, md5 = None, beatmapSetID = None, gameMode = 0, refresh=False, fileName= None):
 		"""
 		Initialize a beatmap object.
 		md5 -- beatmap md5. Optional.
@@ -24,7 +24,7 @@ class beatmap:
 		"""
 		self.songName = ""
 		self.fileMD5 = ""
-		self.fileName = fileName
+		self.fileName = ""
 		self.rankedStatus = rankedStatuses.NOT_SUBMITTED
 		self.rankedStatusFrozen = 0
 		self.beatmapID = 0
