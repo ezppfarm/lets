@@ -165,6 +165,7 @@ class handler(requestsManager.asyncRequestHandler):
 				midPPCalcException = e
 
 			
+			if (s.pp >= 4000 and UsingRelax and s.gameMode == gameModes.STD) and restricted == False:
 				userUtils.restrict(userID)
 				userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
 				log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
@@ -172,10 +173,11 @@ class handler(requestsManager.asyncRequestHandler):
 				userUtils.restrict(userID)
 				userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
 				log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
-			else: (s.pp >= 800 and s.gameMode == gameModes.STD) and userID != 1254 and restricted == False:
-				userUtils.restrict(userID)
-				userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
-				log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
+			else: 
+				if (s.pp >= 800 and s.gameMode == gameModes.STD) and userID != 1254 and restricted == False:
+					userUtils.restrict(userID)
+					userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
+					log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
 			# Check notepad hack
 				
 			if bmk is None and bml is None:
