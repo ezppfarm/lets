@@ -168,7 +168,7 @@ class handler(requestsManager.asyncRequestHandler):
 				APLIST = [1254]
 					
 				if UsingRelax: 
-					if (s.pp >= 2000 and s.gameMode == gameModes.STD) and userID not in rxGods:
+					if (s.pp >= 2000 and s.gameMode == gameModes.STD) and userID not in RXLIST:
 						userUtils.restrict(userID)
 						userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
 						log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
