@@ -165,15 +165,14 @@ class handler(requestsManager.asyncRequestHandler):
 				midPPCalcException = e
 
 			
-			if (s.pp >= 4000 and bool(s.mods & 128) == True and s.gameMode == gameModes.STD) and restricted == False:
 				userUtils.restrict(userID)
 				userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
 				log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
-			elif (s.pp >= 800 and bool(s.mods & 128) == False and s.gameMode == gameModes.STD) and restricted == False:
+			elif (s.pp >= 3000 and UsingAuto and s.gameMode == gameModes.STD) and restricted == False:
 				userUtils.restrict(userID)
 				userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
 				log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
-			elif (s.pp >= 3000 and bool(s.mods & 8192) == True and s.gameMode == gameModes.STD) and restricted == False:
+			else: (s.pp >= 800 and s.gameMode == gameModes.STD) and userID != 1254 and restricted == False:
 				userUtils.restrict(userID)
 				userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
 				log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
