@@ -164,24 +164,24 @@ class handler(requestsManager.asyncRequestHandler):
 				s.pp = 0
 				midPPCalcException = e
 
-				RXLIST = [1009, 1096 ,1097, 1164]
-				APLIST = [1254]
+			RXLIST = [1009, 1096 ,1097, 1164]
+			APLIST = [1254]
 					
-				if UsingRelax: 
-					if (s.pp >= 2000 and s.gameMode == gameModes.STD) and userID not in RXLIST:
-						userUtils.restrict(userID)
-						userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
-						log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
-				elif UsingAuto:
-					if (s.pp >= 2000 and s.gameMode == gameModes.STD) and userID not in APLIST:
-						userUtils.restrict(userID)
-						userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
-						log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")		
-				else: # Vanilla
-					if (s.pp >= 700 and s.gameMode == gameModes.STD):
-						userUtils.restrict(userID)
-						userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
-						log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
+			if UsingRelax: 
+				if (s.pp >= 2000 and s.gameMode == gameModes.STD) and userID not in RXLIST:
+					userUtils.restrict(userID)
+					userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
+					log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
+			elif UsingAuto:
+				if (s.pp >= 2000 and s.gameMode == gameModes.STD) and userID not in APLIST:
+					userUtils.restrict(userID)
+					userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
+					log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")		
+			else: # Vanilla
+				if (s.pp >= 700 and s.gameMode == gameModes.STD):
+					userUtils.restrict(userID)
+					userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
+					log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
 
 			# Check notepad hack
 				
