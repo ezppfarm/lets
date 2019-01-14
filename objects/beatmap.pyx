@@ -10,7 +10,7 @@ from objects import glob
 class beatmap:
 	__slots__ = ["songName", "fileMD5", "rankedStatus", "rankedStatusFrozen", "beatmapID", "beatmapSetID", "offset",
 	             "rating", "starsStd", "starsTaiko", "starsCtb", "starsMania", "AR", "OD", "maxCombo", "hitLength",
-	             "bpm", "rankingDate", "playcount" ,"passcount", "refresh"]
+	             "bpm", "rankingDate" "playcount" ,"passcount", "refresh"]
 
 	def __init__(self, md5 = None, beatmapSetID = None, gameMode = 0, refresh=False):
 		"""
@@ -37,7 +37,7 @@ class beatmap:
 		self.hitLength = 0
 		self.bpm = 0
 		
-		self.rankingDate = 0
+		self.rankingDate = int(time.mktime(datetime.datetime.strptime(mainData["last_update"], "%Y-%m-%d %H:%M:%S").timetuple()))
 
 		# Statistics for ranking panel
 		self.playcount = 0
@@ -64,11 +64,6 @@ class beatmap:
 			if frozen > 0:
 				self.rankedStatus = bdata["ranked"]
 		
-			if frozen == 0 and self.rankedStatus > 1: 
-				glob.db.execute("UPDATE `beatmaps` SET   `ranking_data` = %s WHERE beatmap_id = %s ", [
-				self.rankingDate if self.rankedStatus > 0 else 0,
-				self.beatmapID
-				])
 			
 
 				glob.db.execute("UPDATE `beatmaps` SET (`id`, `beatmap_id`, `beatmapset_id`, `beatmap_md5`, `song_name`, `ar`, `od`, `difficulty_std`, `difficulty_taiko`, `difficulty_ctb`, `difficulty_mania`, `max_combo`, `hit_length`, `bpm`, `ranked`, `latest_update`, `ranked_status_freezed`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", [
@@ -93,7 +88,7 @@ class beatmap:
 		else:
 			frozen = 0
 			try:
-				glob.db.execute("INSERT INTO `beatmaps` (`id`, `beatmap_id`, `beatmapset_id`, `beatmap_md5`, `song_name`, `ar`, `od`, `difficulty_std`, `difficulty_taiko`, `difficulty_ctb`, `difficulty_mania`, `max_combo`, `hit_length`, `bpm`, `ranked`, `latest_update`, `ranked_status_freezed`, 'ranking_data') VALUES (NULL, %s ,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", [
+				glob.db.execute("INSERT INTO `beatmaps` (`id`, `beatmap_id`, `beatmapset_id`, `beatmap_md5`, `song_name`, `ar`, `od`, `difficulty_std`, `difficulty_taiko`, `difficulty_ctb`, `difficulty_mania`, `max_combo`, `hit_length`, `bpm`, `ranked`, `latest_update`, `ranked_status_freezed`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", [
 					self.beatmapID,
 					self.beatmapSetID,
 					self.fileMD5,
@@ -109,8 +104,7 @@ class beatmap:
 					self.bpm,
 					self.rankedStatus if frozen == 0 else 2,
 					int(time.time()),
-					frozen,
-					self.rankingDate if self.rankedStatus > 0 else 0
+					frozen
 				])
 
 			except:
@@ -162,7 +156,6 @@ class beatmap:
 		self.songName = data["song_name"]
 		self.fileMD5 = data["beatmap_md5"]
 		self.rankedStatus = int(data["ranked"])
-		self.rankingDate = int(data["ranking_data"])
 		self.rankedStatusFrozen = int(data["ranked_status_freezed"])
 		self.beatmapID = int(data["beatmap_id"])
 		self.beatmapSetID = int(data["beatmapset_id"])
@@ -239,7 +232,6 @@ class beatmap:
 		self.beatmapSetID = int(mainData["beatmapset_id"])
 		self.AR = float(mainData["diff_approach"])
 		self.OD = float(mainData["diff_overall"])
-		self.rankingDate = int(time.mktime(datetime.datetime.strptime(mainData["last_update"], "%Y-%m-%d %H:%M:%S").timetuple()))
 
 		# Determine stars for every mode
 		self.starsStd = 0.0
