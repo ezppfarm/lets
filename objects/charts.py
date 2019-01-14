@@ -83,6 +83,7 @@ class BeatmapChart(Chart):
             **self.before_after_dict("maxCombo", self.max_combo),
             **self.before_after_dict("accuracy", self.accuracy),
             **self.before_after_dict("rankedScore", self.ranked_score),
+            **self.before_after_dict("totalScore", self.ranked_score),
             **self.before_after_dict("pp", self.pp),
             "onlineScoreId": self.score_id
         }
