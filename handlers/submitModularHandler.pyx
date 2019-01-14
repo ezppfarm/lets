@@ -420,7 +420,7 @@ class handler(requestsManager.asyncRequestHandler):
 							("beatmapSetId", beatmapInfo.beatmapSetID),
 							("beatmapPlaycount", beatmapInfo.playcount + 1),
 							("beatmapPasscount", beatmapInfo.passcount + (s.completed == 3)),
-							("approvedDate", "")
+							("approvedDate", beatmapInfo.rankingDate)
 						]),
 						BeatmapChart(
 							oldPersonalBest if s.completed == 3 else currentPersonalBest,
@@ -439,7 +439,7 @@ class handler(requestsManager.asyncRequestHandler):
 							("beatmapSetId", beatmapInfo.beatmapSetID),
 							("beatmapPlaycount", beatmapInfo.playcount),
 							("beatmapPasscount", beatmapInfo.passcount),
-							("approvedDate", "")
+							("approvedDate", beatmapInfo.rankingDate)
 						]),
 						collections.OrderedDict([
 							("chartId", "overall"),
