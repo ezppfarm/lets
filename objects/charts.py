@@ -92,7 +92,7 @@ class OverallChart(Chart):
     """
     Overall ranking chart  achievements
     """
-    def __init__(self, user_id, old_user_stats, new_user_stats, beatmap, score, new_achievements, old_rank, new_rank):
+    def __init__(self, user_id, old_user_stats, new_user_stats, bi, score, new_achievements, old_rank, new_rank):
         """
         Initializes a new OverallChart object.
         This constructor sucks because LETS itself sucks.
@@ -109,7 +109,7 @@ class OverallChart(Chart):
         self.rank = (old_rank, new_rank)
         self.ranked_score = (old_user_stats["rankedScore"], new_user_stats["rankedScore"])
         self.total_score = (old_user_stats["totalScore"], new_user_stats["totalScore"])
-        self.max_combo = beatmap.maxCombo
+        self.max_combo = (bi.maxCombo, bi.maxCombo)
         self.accuracy = (old_user_stats["accuracy"], new_user_stats["accuracy"])
         self.pp = (old_user_stats["pp"], new_user_stats["pp"])
         self.new_achievements = new_achievements
