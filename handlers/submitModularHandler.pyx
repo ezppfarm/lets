@@ -428,7 +428,7 @@ class handler(requestsManager.asyncRequestHandler):
 							beatmapInfo.beatmapID,
 						),
 						OverallChart(
-							userID, oldUserData, newUserData, s, beatmapInfo, new_achievements, oldRank, rankInfo["currentRank"]
+							userID, oldUserData, newUserData, beatmapInfo, s, new_achievements, oldRank, rankInfo["currentRank"]
 						)
 					]
 				else:
