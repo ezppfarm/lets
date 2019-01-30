@@ -167,6 +167,8 @@ class handler(requestsManager.asyncRequestHandler):
 			RXLIST = [1009, 1096 ,1097, 1164]
 			APLIST = [1254, 1164, 1252]
 					
+			# for fuck sake freddie
+			gamers = [1317]
 			if UsingRelax: 
 				if (s.pp >= 2000 and s.gameMode == gameModes.STD) and userID not in RXLIST:
 					userUtils.restrict(userID)
