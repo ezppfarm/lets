@@ -22,7 +22,7 @@ class score:
 	}
 	__slots__ = ["scoreID", "playerName", "score", "maxCombo", "c50", "c100", "c300", "cMiss", "cKatu", "cGeki",
 	             "fullCombo", "mods", "playerUserID","rank","date", "hasReplay", "fileMd5", "passed", "playDateTime",
-	             "gameMode", "completed", "accuracy", "pp", "oldPersonalBest", "rankedScoreIncrease"]
+	             "gameMode", "completed", "accuracy", "pp", "displayed_PP", "oldPersonalBest", "rankedScoreIncrease"]
 	def __init__(self, scoreID = None, rank = None, setData = True):
 		"""
 		Initialize a (empty) score object.
@@ -56,6 +56,8 @@ class score:
 		self.accuracy = 0.00
 
 		self.pp = 0.00
+
+		self.displayed_PP = 0.00
 
 		self.oldPersonalBest = 0
 		self.rankedScoreIncrease = 0
@@ -149,6 +151,7 @@ class score:
 		self.completed = data["completed"]
 		#if "pp" in data:
 		self.pp = data["pp"]
+		self.displayed_pp = data["displayed_pp"]
 		self.calculateAccuracy()
 
 	def setDataFromScoreData(self, scoreData):
@@ -235,7 +238,7 @@ class score:
 					self.completed = 3
 					self.calculateUNRANKEDPP()
 					# Compare personal best's score with current score
-					if self.pp > personalBest["displayed_PP"]:
+					if self.displayed_pp > personalBest["displayed_PP"]:
 						# New best score
 						self.completed = 3
 						self.rankedScoreIncrease = self.score-personalBest["score"]
@@ -268,10 +271,10 @@ class score:
 			b = beatmap.beatmap(self.fileMd5, 0)
 			if b.rankedStatus == rankedStatuses.PENDING:
 				query = "INSERT INTO scores_relax (id, beatmap_md5, userid, score, max_combo, full_combo, mods, 300_count, 100_count, 50_count, katus_count, gekis_count, misses_count, time, play_mode, completed, accuracy, displayed_pp) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-				self.scoreID = int(glob.db.execute(query, [self.fileMd5, userUtils.getID(self.playerName), self.score, self.maxCombo, 1 if self.fullCombo == True else 0, self.mods, self.c300, self.c100, self.c50, self.cKatu, self.cGeki, self.cMiss, self.playDateTime, self.gameMode, self.completed, self.accuracy * 100, self.pp]))
+				self.scoreID = int(glob.db.execute(query, [self.fileMd5, userUtils.getID(self.playerName), self.score, self.maxCombo, 1 if self.fullCombo == True else 0, self.mods, self.c300, self.c100, self.c50, self.cKatu, self.cGeki, self.cMiss, self.playDateTime, self.gameMode, self.completed, self.accuracy * 100, self.displayed_pp]))
 			else:
 				query = "INSERT INTO scores_relax (id, beatmap_md5, userid, score, max_combo, full_combo, mods, 300_count, 100_count, 50_count, katus_count, gekis_count, misses_count, time, play_mode, completed, accuracy, pp, displayed_pp) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-				self.scoreID = int(glob.db.execute(query, [self.fileMd5, userUtils.getID(self.playerName), self.score, self.maxCombo, 1 if self.fullCombo == True else 0, self.mods, self.c300, self.c100, self.c50, self.cKatu, self.cGeki, self.cMiss, self.playDateTime, self.gameMode, self.completed, self.accuracy * 100, self.pp, self.pp]))
+				self.scoreID = int(glob.db.execute(query, [self.fileMd5, userUtils.getID(self.playerName), self.score, self.maxCombo, 1 if self.fullCombo == True else 0, self.mods, self.c300, self.c100, self.c50, self.cKatu, self.cGeki, self.cMiss, self.playDateTime, self.gameMode, self.completed, self.accuracy * 100, self.pp, self.displayed_pp]))
 
 			# Set old personal best to completed = 2
 			if self.oldPersonalBest != 0:
@@ -290,8 +293,10 @@ class score:
 			and scoreUtils.isRankable(self.mods) and self.passed and self.gameMode in score.PP_CALCULATORS:
 			calculator = score.PP_CALCULATORS[self.gameMode](b, self)
 			self.pp = calculator.pp
+			self.displayed_pp = calculator.pp	
 		else:
 			self.pp = 0
+			self.displayed_pp = 0
 	def calculateUNRANKEDPP(self, b = None):
 		"""
 		Calculate this score's pp value if completed == 3
@@ -302,4 +307,4 @@ class score:
 
 		# Calculate pp
 		calculator = score.PP_CALCULATORS[self.gameMode](b, self)
-		self.pp = calculator.pp		
+		self.displayed_pp = calculator.pp		
