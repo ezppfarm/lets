@@ -178,11 +178,7 @@ class score:
 			self.playDateTime = int(time.time())
 			self.calculateAccuracy()
 			#osuVersion = scoreData[17]
-			b = beatmap.beatmap(self.fileMd5, 0)
-			if b.rankedStatus == rankedStatuses.PENDING:
-				self.calculateUNRANKEDPP()
-			else:
-				self.calculatePP()
+			self.calculatePP()
 			# Set completed status
 			self.setCompletedStatus()
 
@@ -234,9 +230,9 @@ class score:
 				b = beatmap.beatmap(self.fileMd5, 0)
 				if b.rankedStatus == rankedStatuses.PENDING:
 					self.completed = 3
-					self.calculateUNRANKEDPP()
+					self.calculatePP()
 					# Compare personal best's score with current score
-					if personalBest["displayed_pp"] > personalBest["displayed_pp"]:
+					if self.pp > personalBest["displayed_pp"]:
 						# New best score
 						self.completed = 3
 						self.rankedScoreIncrease = self.score-personalBest["score"]
@@ -293,14 +289,3 @@ class score:
 			self.pp = calculator.pp
 		else:
 			self.pp = 0
-	def calculateUNRANKEDPP(self, b = None):
-		"""
-		Calculate this score's pp value if completed == 3
-		"""
-		# Create beatmap object
-		if b is None:
-			b = beatmap.beatmap(self.fileMd5, 0)
-
-		# Calculate pp
-		calculator = score.PP_CALCULATORS[self.gameMode](b, self)
-		self.pp = calculator.pp		
