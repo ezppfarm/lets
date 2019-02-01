@@ -201,7 +201,7 @@ class scoreboardAuto:
 			return
 		
 		
-		overwrite = "displayed_pp"
+		overwrite = "pp"
 		# We have a score, run the huge query
 		# Base query
 		query = """SELECT COUNT(*) AS rank FROM scores_auto STRAIGHT_JOIN users ON scores_auto.userid = users.id STRAIGHT_JOIN users_stats ON users.id = users_stats.id WHERE scores_auto.{0} >= (
@@ -217,7 +217,7 @@ class scoreboardAuto:
 		if self.friends:
 			query += " AND (scores_auto.userid IN (SELECT user2 FROM users_relationships WHERE user1 = %(userid)s) OR scores_auto.userid = %(userid)s)"
 		# Sort and limit at the end
-		query += " ORDER BY displayed_pp DESC LIMIT 1".format(overwrite)
+		query += " ORDER BY pp DESC LIMIT 1".format(overwrite)
 		result = glob.db.fetch(query, {"md5": self.beatmap.fileMD5, "userid": self.userID, "mode": self.gameMode, "mods": self.mods})
 		if result is not None:
 			self.personalBestRank = result["rank"]
@@ -237,10 +237,10 @@ class scoreboardAuto:
 			# Set personal best score rank
 			self.setPersonalBestRank()	# sets self.personalBestRank with the huge query
 			self.scores[0].rank = self.personalBestRank
-			data += self.scores[0].getData(pp=True)
+			data += self.scores[0].getData()
 
 		# Output top 50 scores
 		for i in self.scores[1:]:
-			data += i.getData(pp=True)
+			data += i.getData(pp=self.mods > -1 and self.mods & modsEnum.AUTOPLAY > 0)
 
 		return data

@@ -122,10 +122,10 @@ class scoreboardRelax:
 		# Sort and limit at the end
 		if not self.mods <= -1 or self.mods & modsEnum.AUTOPLAY == 0:
 			# Order by score if we aren't filtering by mods or AUTOPLAY mod is disabled
-			order = "ORDER BY displayed_pp DESC"
+			order = "ORDER BY pp DESC"
 		elif self.mods & modsEnum.AUTOPLAY > 0:
 			# Otherwise, filter by pp
-			order = "ORDER BY displayed_pp DESC"
+			order = "ORDER BY pp DESC"
 		limit = "LIMIT 100"
 
 		# Build query, get params and run query
@@ -201,7 +201,7 @@ class scoreboardRelax:
 			return
 		
 		
-		overwrite = "displayed_pp"
+		overwrite = "pp"
 		# We have a score, run the huge query
 		# Base query
 		query = """SELECT COUNT(*) AS rank FROM scores_relax STRAIGHT_JOIN users ON scores_relax.userid = users.id STRAIGHT_JOIN users_stats ON users.id = users_stats.id WHERE scores_relax.{0} >= (
@@ -217,7 +217,7 @@ class scoreboardRelax:
 		if self.friends:
 			query += " AND (scores_relax.userid IN (SELECT user2 FROM users_relationships WHERE user1 = %(userid)s) OR scores_relax.userid = %(userid)s)"
 		# Sort and limit at the end
-		query += " ORDER BY displayed_pp DESC LIMIT 1".format(overwrite)
+		query += " ORDER BY pp DESC LIMIT 1".format(overwrite)
 		result = glob.db.fetch(query, {"md5": self.beatmap.fileMD5, "userid": self.userID, "mode": self.gameMode, "mods": self.mods})
 		if result is not None:
 			self.personalBestRank = result["rank"]
@@ -237,10 +237,10 @@ class scoreboardRelax:
 			# Set personal best score rank
 			self.setPersonalBestRank()	# sets self.personalBestRank with the huge query
 			self.scores[0].rank = self.personalBestRank
-			data += self.scores[0].getData(pp=True)
+			data += self.scores[0].getData()
 
 		# Output top 50 scores
 		for i in self.scores[1:]:
-			data += i.getData(pp=True)
+			data += i.getData(pp=self.mods > -1 and self.mods & modsEnum.AUTOPLAY > 0)
 
 		return data
