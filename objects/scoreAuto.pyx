@@ -300,9 +300,5 @@ class score:
 		# Create beatmap object
 		if b is None:
 			b = beatmap.beatmap(self.fileMd5, 0)
-
-		# Calculate pp
-			calculator = score.PP_CALCULATORS[self.gameMode](b, self)
-			self.pp = calculator.pp
-		else:
-			self.pp = 0			
+		calculator = score.PP_CALCULATORS[self.gameMode](b, self)
+		self.pp = calculator.pp		
