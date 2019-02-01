@@ -125,7 +125,7 @@ class scoreboardRelax:
 			order = "ORDER BY displayed_pp DESC"
 		elif self.mods & modsEnum.AUTOPLAY > 0:
 			# Otherwise, filter by pp
-			order = "ORDER BY displayed_ppp DESC"
+			order = "ORDER BY displayed_pp DESC"
 		limit = "LIMIT 100"
 
 		# Build query, get params and run query

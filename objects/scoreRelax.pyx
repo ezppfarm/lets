@@ -236,7 +236,7 @@ class score:
 					self.completed = 3
 					self.calculateUNRANKEDPP()
 					# Compare personal best's score with current score
-					if personalBest["displayed_PP"] > personalBest["displayed_PP"]:
+					if personalBest["displayed_pp"] > personalBest["displayed_pp"]:
 						# New best score
 						self.completed = 3
 						self.rankedScoreIncrease = self.score-personalBest["score"]
