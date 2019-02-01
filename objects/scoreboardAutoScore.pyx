@@ -5,7 +5,7 @@ from common.constants import mods as modsEnum
 from objects import glob
 
 
-class scoreboardAutoScore:
+class scoreboardAuto:
 	def __init__(self, username, gameMode, beatmap, setScores = True, country = False, friends = False, mods = -1):
 		"""
 		Initialize a leaderboard object
