@@ -176,7 +176,11 @@ class score:
 			self.playDateTime = int(time.time())
 			self.calculateAccuracy()
 			#osuVersion = scoreData[17]
-			self.calculatePP()
+			b = beatmap.beatmap(self.fileMd5, 0)
+			if b.rankedStatus == rankedStatuses.PENDING:
+				self.calculateUNRANKEDPP()
+			else:
+				self.calculatePP()
 			# Set completed status
 			self.setCompletedStatus()
 
@@ -218,7 +222,7 @@ class score:
 
 			# No duplicates found.
 			# Get right "completed" value
-			personalBest = glob.db.fetch("SELECT id, pp, score FROM scores_auto WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND completed = 3 LIMIT 1", [userID, self.fileMd5, self.gameMode])
+			personalBest = glob.db.fetch("SELECT id, pp, displayed_PP, score FROM scores_auto WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND completed = 3 LIMIT 1", [userID, self.fileMd5, self.gameMode])
 			if personalBest is None:
 				# This is our first score on this map, so it's our best score
 				self.completed = 3
@@ -227,8 +231,10 @@ class score:
 			else:
 				b = beatmap.beatmap(self.fileMd5, 0)
 				if b.rankedStatus == rankedStatuses.PENDING:
+					self.completed = 3
+					self.calculateUNRANKEDPP()
 					# Compare personal best's score with current score
-					if self.score > personalBest["score"]:
+					if self.pp > personalBest["displayed_PP"]:
 						# New best score
 						self.completed = 3
 						self.rankedScoreIncrease = self.score-personalBest["score"]
@@ -237,7 +243,6 @@ class score:
 						self.completed = 2
 						self.rankedScoreIncrease = 0
 						self.oldPersonalBest = 0
-					self.completed = 3
 				else:
 					self.completed = 3
 					self.calculatePP()
@@ -260,8 +265,12 @@ class score:
 		"""
 		# Add this score
 		if self.completed >= 2:
-			query = "INSERT INTO scores_auto (id, beatmap_md5, userid, score, max_combo, full_combo, mods, 300_count, 100_count, 50_count, katus_count, gekis_count, misses_count, time, play_mode, completed, accuracy, pp) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-			self.scoreID = int(glob.db.execute(query, [self.fileMd5, userUtils.getID(self.playerName), self.score, self.maxCombo, 1 if self.fullCombo == True else 0, self.mods, self.c300, self.c100, self.c50, self.cKatu, self.cGeki, self.cMiss, self.playDateTime, self.gameMode, self.completed, self.accuracy * 100, self.pp]))
+			if b.rankedStatus == rankedStatuses.PENDING:
+				query = "INSERT INTO scores_auto (id, beatmap_md5, userid, score, max_combo, full_combo, mods, 300_count, 100_count, 50_count, katus_count, gekis_count, misses_count, time, play_mode, completed, accuracy, displayed_pp) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+				self.scoreID = int(glob.db.execute(query, [self.fileMd5, userUtils.getID(self.playerName), self.score, self.maxCombo, 1 if self.fullCombo == True else 0, self.mods, self.c300, self.c100, self.c50, self.cKatu, self.cGeki, self.cMiss, self.playDateTime, self.gameMode, self.completed, self.accuracy * 100, self.pp]))
+			else:
+				query = "INSERT INTO scores_auto (id, beatmap_md5, userid, score, max_combo, full_combo, mods, 300_count, 100_count, 50_count, katus_count, gekis_count, misses_count, time, play_mode, completed, accuracy, pp, displayed_pp) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+				self.scoreID = int(glob.db.execute(query, [self.fileMd5, userUtils.getID(self.playerName), self.score, self.maxCombo, 1 if self.fullCombo == True else 0, self.mods, self.c300, self.c100, self.c50, self.cKatu, self.cGeki, self.cMiss, self.playDateTime, self.gameMode, self.completed, self.accuracy * 100, self.pp, self.pp]))
 
 			# Set old personal best to completed = 2
 			if self.oldPersonalBest != 0:
@@ -282,3 +291,17 @@ class score:
 			self.pp = calculator.pp
 		else:
 			self.pp = 0
+
+	def calculateUNRANKEDPP(self, b = None):
+		"""
+		Calculate this score's pp value if completed == 3
+		"""
+		# Create beatmap object
+		if b is None:
+			b = beatmap.beatmap(self.fileMd5, 0)
+
+		# Calculate pp
+			calculator = score.PP_CALCULATORS[self.gameMode](b, self)
+			self.pp = calculator.pp
+		else:
+			self.pp = 0			

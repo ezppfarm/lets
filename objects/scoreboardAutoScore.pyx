@@ -54,7 +54,7 @@ class scoreboardAuto:
 			friends = "AND (scores_auto.userid IN (SELECT user2 FROM users_relationships WHERE user1 = %(userid)s) OR scores_auto.userid = %(userid)s)"
 
 		# Sort and limit at the end
-		order = "ORDER BY score DESC"
+		order = "ORDER BY displayed_pp DESC"
 		limit = "LIMIT 1"
 
 		# Build query, get params and run query
