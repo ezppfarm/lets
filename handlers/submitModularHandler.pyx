@@ -152,8 +152,12 @@ class handler(requestsManager.asyncRequestHandler):
 				length = userUtils.getBeatmapTime(beatmapInfo.beatmapID)
 			else:
 				length = math.ceil(int(self.get_argument("ft")) / 1000)
-				
-			userUtils.incrementPlaytime(userID, s.gameMode, length)
+			if UsingRelax: 	
+				userUtils.incrementPlaytimeRX(userID, s.gameMode, length)
+			elif UsingAuto:
+				userUtils.incrementPlaytimeAP(userID, s.gameMode, length)
+			else:
+				userUtils.incrementPlaytime(userID, s.gameMode, length)
 			
 		
 			midPPCalcException = None
