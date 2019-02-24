@@ -127,8 +127,8 @@ class score:
 		"""
 		#print(str(data))
 		self.scoreID = data["id"]
-		if "username" in data:
-			self.playerName = data["username"]
+				if "username" in data:
+			self.playerName = self.getClan(data["username"])
 		else:
 			self.playerName = userUtils.getUsername(data["userid"])
 		self.playerUserID = data["userid"]
@@ -283,3 +283,14 @@ class score:
 			self.pp = calculator.pp
 		else:
 			self.pp = 0
+	def getClan(self, username):
+		"""
+		Get userID's clan
+		:param userID: user id
+		:return: username or None
+		"""
+		userID = userUtils.getID(username)
+		clanInfo = glob.db.fetch("SELECT clans.tag, clans.id, user_clans.clan, user_clans.user FROM user_clans LEFT JOIN clans ON clans.id = user_clans.clan WHERE user_clans.user = %s LIMIT 1", [userID])
+		if clanInfo is None:
+			return username
+		return "[" + clanInfo["tag"] + "] " + username
