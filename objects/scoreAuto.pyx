@@ -282,7 +282,7 @@ class score:
 			self.pp = calculator.pp
 		else:
 			self.pp = 0
-			
+
 	def getClan(self, username):
 		"""
 		Get userID's clan

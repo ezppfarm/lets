@@ -127,7 +127,7 @@ class score:
 		"""
 		#print(str(data))
 		self.scoreID = data["id"]
-				if "username" in data:
+		if "username" in data:
 			self.playerName = self.getClan(data["username"])
 		else:
 			self.playerName = userUtils.getUsername(data["userid"])
