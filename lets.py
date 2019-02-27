@@ -73,8 +73,8 @@ def make_app():
 		(r"/web/replays_relax/(.*)", getFullReplayHandlerRelax.handler),
 		(r"/web/replays_auto/(.*)", getFullReplayHandlerAuto.handler),
 
-		(r"/p/verify", redirectHandler.handler, dict(destination="https://ripple.moe/index.php?p=2")),
-		(r"/u/(.*)", redirectHandler.handler, dict(destination="https://ripple.moe/index.php?u={}")),
+		(r"/p/verify", redirectHandler.handler, dict(destination="https://yozora.pw/index.php?p=2")),
+		(r"/u/(.*)", redirectHandler.handler, dict(destination="https://yozora.pw/index.php?u={}")),
 
 		(r"/api/v1/status", apiStatusHandler.handler),
 		(r"/api/v1/pp", apiPPHandler.handler),
@@ -86,7 +86,6 @@ def make_app():
 
 		# Not done yet
 		(r"/web/lastfm.php", emptyHandler.handler),
-		(r"/web/osu-rate.php", emptyHandler.handler),
 		(r"/web/osu-addfavourite.php", emptyHandler.handler),
 		(r"/web/osu-checktweets.php", emptyHandler.handler),
 
