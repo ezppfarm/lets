@@ -333,7 +333,7 @@ class handler(requestsManager.asyncRequestHandler):
 				raise ppCalcException(midPPCalcException)
 
 			if s.passed:
-
+				maxCombo = userUtils.getMaxCombo(userID, s.gameMode)
 				oldUserData = glob.userStatsCache.get(userID, s.gameMode)
 				oldRank = userUtils.getGameRank(userID, s.gameMode)
 
@@ -350,6 +350,7 @@ class handler(requestsManager.asyncRequestHandler):
 			# and to determine if we should update the leaderboard
 			# (only if we passed that song)
 			if s.passed:
+
 				# Get new stats
 				if UsingRelax:
 					newUserData = userUtils.getUserStatsRx(userID, s.gameMode)
@@ -361,7 +362,6 @@ class handler(requestsManager.asyncRequestHandler):
 					leaderboardHelperAuto.update(userID, newUserData["pp"], s.gameMode)				
 				else:
 					newUserData = userUtils.getUserStats(userID, s.gameMode)
-					maxCombo = userUtils.getMaxCombo(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
 					leaderboardHelper.update(userID, newUserData["pp"], s.gameMode)				
 				
