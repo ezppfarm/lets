@@ -361,6 +361,7 @@ class handler(requestsManager.asyncRequestHandler):
 					leaderboardHelperAuto.update(userID, newUserData["pp"], s.gameMode)				
 				else:
 					newUserData = userUtils.getUserStats(userID, s.gameMode)
+					maxCombo = userUtils.getMaxCombo(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
 					leaderboardHelper.update(userID, newUserData["pp"], s.gameMode)				
 				
@@ -434,7 +435,7 @@ class handler(requestsManager.asyncRequestHandler):
 							beatmapInfo.beatmapID,
 						),
 						OverallChart(
-							userID, oldUserData, newUserData, beatmapInfo, s, new_achievements, oldRank, rankInfo["currentRank"]
+							userID, oldUserData, newUserData, maxCombo, s, new_achievements, oldRank, rankInfo["currentRank"]
 						)
 					]
 				else:
