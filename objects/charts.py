@@ -110,7 +110,7 @@ class OverallChart(Chart):
         self.rank = (old_rank, new_rank)
         self.ranked_score = (old_user_stats["rankedScore"], new_user_stats["rankedScore"])
         self.total_score = (old_user_stats["totalScore"], new_user_stats["totalScore"])
-        self.max_combo = (bi.maxCombo, bi.maxCombo)
+        self.max_combo = (old_user_stats["maxCombo"], new_user_stats["maxCombo"])
         self.accuracy = (old_user_stats["accuracy"], new_user_stats["accuracy"])
         self.pp = (old_user_stats["pp"], new_user_stats["pp"])
         self.new_achievements = new_achievements
