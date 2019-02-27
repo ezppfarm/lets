@@ -338,8 +338,6 @@ class handler(requestsManager.asyncRequestHandler):
 				oldRank = userUtils.getGameRank(userID, s.gameMode)
 
 			log.debug("Updating {}'s stats...".format(username))
-			log.warning("logging s.gamemode {}".format(s.gameMode))
-			log.warning("logging user's max combo {}".format(maxCombo))
 			if UsingRelax:	
 				userUtils.updateStatsRx(userID, s)
 			if UsingAuto:	
