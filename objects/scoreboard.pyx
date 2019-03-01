@@ -28,8 +28,7 @@ class scoreboard:
 		self.mods = mods
 		if setScores:
 			self.setScores()
-		clanInfo = glob.db.fetch("SELECT clans.tag, clans.id, user_clans.clan, user_clans.user FROM user_clans LEFT JOIN clans ON clans.id = user_clans.clan WHERE user_clans.user = %s LIMIT 1", [self.userID])
-		self.username = "[" + clanInfo["tag"] + "]" + username
+
 
 	@staticmethod
 	def buildQuery(params):
