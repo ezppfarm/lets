@@ -227,28 +227,43 @@ class score:
 				self.oldPersonalBest = 0
 			else:
 				b = beatmap.beatmap(self.fileMd5, 0)
-				if b.rankedStatus == rankedStatuses.PENDING:
-					# Compare personal best's score with current score
-					if self.score > personalBest["score"]:
-						# New best score
+				if b.rankedStatus != rankedStatuses.PENDING:
+					if self.pp == 0.00:
+						self.calculatePP(b=b)
+					if self.pp > personalBest["pp"] or (self.pp == personalBest["pp"] and self.score > personalBest["score"]):
 						self.completed = 3
-						self.rankedScoreIncrease = self.score-personalBest["score"]
+						self.rankedScoreIncrease = self.score - personalBest["score"]
+						self.oldPersonalBest = personalBest["id"]
+						if self.score <= personalBest['score'] :
+							self.oldPersonalBest = 0
+							glob.db.execute("UPDATE scores SET completed = 4 WHERE id = %s",[personalBest["id"]])
+						sub = True
+					else:
+						self.completed = 2
+						withMods = glob.db.fetch("SELECT id, score, mods, pp FROM scores WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND completed>= 3 AND mods = %s ORDER BY pp DESC LIMIT 1", [userID, self.fileMd5, self.gameMode, self.mods])
+						if withMods is not None:
+							if self.score > withMods["score"]:
+								self.rankedScoreIncrease = self.score - withMods["score"]
+								self.oldPersonalBest = 0
+								if(withMods["id"] != personalBest["id"]):
+									self.oldPersonalBest = withMods["id"]
+								self.completed = 4
+						else:
+							self.completed = 4
+							self.rankedScoreIncrease = 0 
+							self.oldPersonalBest = 0 
+				else:		
+					if (self.score > personalBest["score"]):
+						self.completed = 3
+						self.rankedScoreIncrease = self.score - personalBest["score"]
 						self.oldPersonalBest = personalBest["id"]
 					else:
 						self.completed = 2
-						self.rankedScoreIncrease = 0
-						self.oldPersonalBest = 0
-					self.completed = 3
-				else:
-					self.completed = 3
-					self.calculatePP()
-					# Compare personal best's score with current score
-					if self.pp > personalBest["pp"]:
-						# New best score
-						self.completed = 3
-						self.rankedScoreIncrease = self.score-personalBest["score"]
-						self.oldPersonalBest = personalBest["id"]
-					else:
+					sub = True
+						
+				# Compare personal best's score with current score
+				if(sub == False):
+					if(self.completed != 4):
 						self.completed = 2
 						self.rankedScoreIncrease = 0
 						self.oldPersonalBest = 0
