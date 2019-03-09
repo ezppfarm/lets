@@ -354,11 +354,13 @@ class handler(requestsManager.asyncRequestHandler):
 				if UsingRelax:
 					newUserData = userUtils.getUserStatsRx(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
-					leaderboardHelperRelax.update(userID, newUserData["pp"], s.gameMode)	
+					leaderboardHelperRelax.update(userID, newUserData["pp"], s.gameMode)
+					maxCombo = 0
 				elif UsingAuto:
 					newUserData = userUtils.getUserStatsAp(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
-					leaderboardHelperAuto.update(userID, newUserData["pp"], s.gameMode)				
+					leaderboardHelperAuto.update(userID, newUserData["pp"], s.gameMode)	
+					maxCombo = 0		
 				else:
 					newUserData = userUtils.getUserStats(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
