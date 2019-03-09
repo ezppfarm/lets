@@ -333,7 +333,7 @@ class handler(requestsManager.asyncRequestHandler):
 				raise ppCalcException(midPPCalcException)
 
 			if s.passed:
-				maxCombo = userUtils.getMaxCombo(userID, s.gameMode)
+				
 				oldUserData = glob.userStatsCache.get(userID, s.gameMode)
 				oldRank = userUtils.getGameRank(userID, s.gameMode)
 
@@ -362,7 +362,8 @@ class handler(requestsManager.asyncRequestHandler):
 				else:
 					newUserData = userUtils.getUserStats(userID, s.gameMode)
 					glob.userStatsCache.update(userID, s.gameMode, newUserData)
-					leaderboardHelper.update(userID, newUserData["pp"], s.gameMode)				
+					leaderboardHelper.update(userID, newUserData["pp"], s.gameMode)	
+					maxCombo = userUtils.getMaxCombo(userID, s.gameMode)			
 				
 
 			userUtils.updateLatestActivity(userID)
@@ -532,6 +533,8 @@ class handler(requestsManager.asyncRequestHandler):
 						userLogMsg = " Achieved Vanilla #{} rank on ".format(newScoreboard.personalBestRank)
 					
 	
+
+
 				# send message to #announce if we're rank #1
 				if newScoreboard.personalBestRank < 101 and s.completed == 3 and restricted == False and beatmapInfo.rankedStatus >= rankedStatuses.PENDING:
 						userUtils.logUserLog(userLogMsg, s.fileMd5, userID, s.gameMode, s.scoreID)
